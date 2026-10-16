@@ -1,0 +1,21 @@
+# blueteam — deep navy & periwinkle.
+# Color Hunt: https://colorhunt.co/palette/0915401b2cc17692ffabd2fa
+NAME="blueteam"
+COLORHUNT="https://colorhunt.co/palette/0915401b2cc17692ffabd2fa"
+BG="#091540"       # Color Hunt 1
+SURFACE="#1B2CC1"  # Color Hunt 2
+ACCENT="#7692FF"   # Color Hunt 3
+FG="#ABD2FA"       # Color Hunt 4
+BG_ALT="#060F30"
+ACCENT2="#ABD2FA"
+MUTED="#8494CC"
+URGENT="#FF6B8B"
+WARN="#FFD27A"
+C0="#060F30" C8="#5E70B8"
+C1="#FF6B8B" C9="#FF94AB"
+C2="#7EE0A8" C10="#A6F0C5"
+C3="#FFD27A" C11="#FFE2A8"
+C4="#7692FF" C12="#9FB3FF"
+C5="#C39BFF" C13="#D8BEFF"
+C6="#6FD6FF" C14="#A0E4FF"
+C7="#ABD2FA" C15="#E8F2FF"

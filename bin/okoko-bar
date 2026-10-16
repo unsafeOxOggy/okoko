@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+# okoko-bar — launch polybar on every monitor, and serve the custom modules.
+set -uo pipefail
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
+
+vpn_ip() {
+    local ip
+    for i in tun0 tun1 wg0 ppp0; do
+        ip=$(ip -4 -o addr show "$i" 2>/dev/null | awk '{print $4}' | cut -d/ -f1)
+        [[ -n $ip ]] && { printf '%s\n' "$ip"; return; }
+    done
+    return 1
+}
+
+case "${1:-launch}" in
+    launch)
+        pkill -x polybar 2>/dev/null
+        while pgrep -x polybar >/dev/null; do sleep 0.2; done
+        if command -v polybar >/dev/null; then
+            mapfile -t mons < <(polybar --list-monitors | cut -d: -f1)
+            for m in "${mons[@]:-}"; do
+                MONITOR="$m" polybar -q -r main -c "$CONF/polybar/config.ini" >>"$STATE/polybar.log" 2>&1 & disown
+            done
+            [[ ${#mons[@]} -eq 0 ]] && { polybar -q -r main -c "$CONF/polybar/config.ini" >>"$STATE/polybar.log" 2>&1 & disown; }
+        fi
+        ;;
+    vpn)
+        if ip=$(vpn_ip); then
+            [[ "${2:-}" == --copy ]] && { printf '%s' "$ip" | xclip -selection clipboard; notify-send "okoko" "VPN IP copied: $ip" 2>/dev/null; exit; }
+            [[ "${2:-}" == --plain ]] && { printf '%s\n' "$ip"; exit; }
+            printf '%s\n' "$ip"
+        else
+            [[ "${2:-}" == --plain ]] && exit 0
+            printf 'down\n'
+        fi
+        ;;
+    target)
+        t=$(cat "$STATE/target" 2>/dev/null)
+        [[ -z $t ]] && { [[ "${2:-}" == --plain ]] && exit 0; printf 'no target\n'; exit; }
+        [[ "${2:-}" == --copy ]] && { printf '%s' "$t" | xclip -selection clipboard; notify-send "okoko" "target copied: $t" 2>/dev/null; exit; }
+        printf '%s\n' "$t"
+        ;;
+    *) echo "usage: okoko-bar {launch|vpn [--copy|--plain]|target [--copy|--plain]}" >&2; exit 1 ;;
+esac

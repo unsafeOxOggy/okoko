@@ -1,0 +1,8 @@
+# ┌─────────────────────────────────────────────┐
+# │  okoko · i3 entry point                     │
+# │  Edit the parts in config.d/, put personal  │
+# │  overrides in ~/.config/i3/local.conf       │
+# └─────────────────────────────────────────────┘
+include ~/.config/i3/config.d/*.conf
+include ~/.config/okoko/current/i3-colors.conf
+include ~/.config/i3/local*.conf

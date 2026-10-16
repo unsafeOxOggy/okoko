@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+# okoko-wall — wallpaper manager: cycle, restore, or generate a geometric
+# wallpaper from the active theme (basic shapes only, no stretching).
+set -uo pipefail
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
+DIR="$CONF/okoko/wallpapers"
+GEN="$CONF/okoko/current/wallpaper.png"
+mkdir -p "$STATE" "$DIR"
+
+set_wall() { command -v feh >/dev/null && feh --no-fehbg --bg-fill "$1" && printf '%s\n' "$1" >"$STATE/wallpaper"; }
+
+mapfile -d '' -t WALLS < <(find "$DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 2>/dev/null | sort -z)
+
+# Generate a geometric wallpaper from theme colors with ImageMagick:
+# a solid background with evenly tiled, unstretched regular shapes.
+gen_wall() {
+    source "$CONF/okoko/current/colors.sh" 2>/dev/null || return 1
+    command -v magick >/dev/null || return 1
+    local W=1920 H=1080 out="$GEN"
+    # grid of regular hexagons + circles, uniform scale, centered — no scale(x,y)
+    magick -size ${W}x${H} "xc:$BG" \
+        -fill "$SURFACE" -draw "circle 320,820 320,760" \
+        -fill "$ACCENT"  -draw "circle 1600,260 1600,320" \
+        -fill "none" -stroke "$SURFACE" -strokewidth 3 \
+        -draw "polygon 960,300 1020,335 1020,405 960,440 900,405 900,335" \
+        -fill "$ACCENT2" -stroke none \
+        -draw "rectangle 120,120 220,220" \
+        -fill "$WARN" -draw "polygon 1750,880 1810,980 1690,980" \
+        "$out" 2>/dev/null && set_wall "$out"
+}
+
+case "${1:-restore}" in
+    next)
+        (( ${#WALLS[@]} == 0 )) && { gen_wall; exit; }
+        cur=$(cat "$STATE/wallpaper" 2>/dev/null); n=0
+        for i in "${!WALLS[@]}"; do [[ "${WALLS[$i]}" == "$cur" ]] && { n=$(( (i+1) % ${#WALLS[@]} )); break; }; done
+        set_wall "${WALLS[$n]}" ;;
+    gen|auto) gen_wall ;;
+    restore)
+        cur=$(cat "$STATE/wallpaper" 2>/dev/null)
+        if [[ -f "$cur" ]]; then set_wall "$cur"
+        elif (( ${#WALLS[@]} )); then set_wall "${WALLS[0]}"
+        else gen_wall; fi ;;
+    *) echo "usage: okoko-wall {next|gen|restore}" >&2; exit 1 ;;
+esac

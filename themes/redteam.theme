@@ -1,0 +1,21 @@
+# redteam — black & blood red.
+# Color Hunt: https://colorhunt.co/palette/000000830000bc0202ff0000
+NAME="redteam"
+COLORHUNT="https://colorhunt.co/palette/000000830000bc0202ff0000"
+BG="#000000"       # Color Hunt 1
+SURFACE="#830000"  # Color Hunt 2
+ACCENT2="#BC0202"  # Color Hunt 3
+ACCENT="#FF0000"   # Color Hunt 4
+FG="#F0DCDC"
+BG_ALT="#140303"
+MUTED="#A87878"
+URGENT="#FFCC00"
+WARN="#FF8C42"
+C0="#140303" C8="#8A4545"
+C1="#FF3B3B" C9="#FF6B6B"
+C2="#9CCB6B" C10="#B8E08A"
+C3="#FFB347" C11="#FFCC80"
+C4="#C77DFF" C12="#DDA6FF"
+C5="#FF4F9A" C13="#FF85B8"
+C6="#FF7F7F" C14="#FFA8A8"
+C7="#F0DCDC" C15="#FFFFFF"

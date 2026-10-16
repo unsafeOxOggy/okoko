@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# okoko-menu — rofi-driven menus: theme picker, power, target, cheat sheet.
+set -uo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
+# The launcher config is list-only; dmenu menus re-enable the -mesg line.
+_MSG_THEME='mainbox { children: [ inputbar, message, listview ]; } message { background-color: @bg-alt; padding: 8px 14px; }'
+_rofi() { rofi -dmenu -i -theme-str "$_MSG_THEME" "$@"; }
+
+menu_theme() {
+    local choice
+    choice=$(okoko theme --list | _rofi -p "theme" -mesg "pick a theme") || return
+    [[ -n $choice ]] && okoko theme "$choice"
+}
+
+menu_power() {
+    local sel
+    sel=$(printf ' Lock\n Logout\n Suspend\n Reboot\n Shutdown' | _rofi -p "power" -theme-str 'listview {lines: 5;}') || return
+    case "$sel" in
+        *Lock)     okoko-lock ;;
+        *Logout)   i3-msg exit ;;
+        *Suspend)  systemctl suspend ;;
+        *Reboot)   systemctl reboot ;;
+        *Shutdown) systemctl poweroff ;;
+    esac
+}
+
+menu_target() {
+    local cur ip
+    cur=$(cat "$STATE/target" 2>/dev/null)
+    ip=$(_rofi -p "target" -mesg "current: ${cur:-none}  ·  empty = clear") || return
+    mkdir -p "$STATE"
+    printf '%s\n' "$ip" >"$STATE/target"
+    pgrep -x polybar >/dev/null && polybar-msg action "#target.hook.0" 2>/dev/null
+    [[ -n $ip ]] && notify-send "okoko" "target → $ip" 2>/dev/null
+}
+
+menu_keys() {
+    awk '
+      /^## / { sub(/^## /,""); split($0,a,": "); cat=a[1]; desc=a[2]; next }
+      /^bindsym / && cat {
+        key=$2; gsub(/\$mod/,"Super",key); gsub(/\+/," + ",key);
+        printf "%-28s  %-11s  %s\n", key, cat, desc; cat=""
+      }' "$ROOT/home/.config/i3/config.d/10-keys.conf" \
+      "$ROOT/home/.config/i3/config.d/20-workspaces.conf" 2>/dev/null \
+    | _rofi -p "keys" -theme-str 'window {width: 820px;} listview {lines: 16;}' -mesg "okoko keybindings" >/dev/null
+}
+
+case "${1:-}" in
+    theme)    menu_theme ;;
+    power)    menu_power ;;
+    target)   menu_target ;;
+    keys)     menu_keys ;;
+    *) echo "usage: okoko-menu {theme|power|target|keys}" >&2; exit 1 ;;
+esac

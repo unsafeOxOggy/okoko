@@ -1,0 +1,17 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: shellcheck
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y shellcheck
+          shopt -s globstar
+          shellcheck -S warning -x okoko install.sh lib/*.sh bin/* || true
+          shellcheck -S error -x okoko install.sh lib/*.sh bin/*
+      - name: bats smoke tests
+        run: |
+          sudo apt-get install -y bats
+          bats tests/

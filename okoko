@@ -1,0 +1,95 @@
+#!/usr/bin/env bash
+# okoko — single entry point. Theme, update, doctor, bar, wallpaper, uninstall.
+set -euo pipefail
+OKOKO_ROOT="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+export OKOKO_ROOT
+# shellcheck source=lib/core.sh
+source "$OKOKO_ROOT/lib/core.sh"
+source "$OKOKO_ROOT/lib/detect.sh"
+source "$OKOKO_ROOT/lib/theme.sh"
+source "$OKOKO_ROOT/lib/link.sh"
+source "$OKOKO_ROOT/lib/autofit.sh"
+
+usage() {
+cat <<USAGE
+${C_BLD}okoko${C_RST} — modular i3 rice for offensive VMs
+
+  okoko theme [name]        apply a theme (no name = interactive picker)
+  okoko theme --list        list available themes
+  okoko wallpaper {next|gen|restore}
+  okoko bar                 relaunch polybar
+  okoko doctor              check the environment and report problems
+  okoko autofit [bash|rs]   install kvm-autofit (screen follows the KVM window)
+  okoko link                (re)deploy dotfiles as symlinks
+  okoko update              git pull + relink + reapply theme
+  okoko uninstall           remove symlinks and restore backups
+  okoko version
+
+Flags: --dry-run (print actions), --yes (assume yes)
+USAGE
+}
+
+cmd_theme() {
+    case "${1:-}" in
+        --list|-l) theme_list ;;
+        "") if _gum_ok || [[ -n "${DISPLAY:-}" ]]; then
+                local sel; sel=$(choose "pick a theme" "$(theme_current)" $(theme_list)); theme_apply "$sel"
+            else theme_apply "$(theme_current)"; fi ;;
+        *) theme_apply "$1" "${2:-}" ;;
+    esac
+}
+
+cmd_doctor() {
+    detect_all; detect_picom_backend
+    step "okoko doctor"
+    info "distro:     $DISTRO_NAME"
+    info "virt:       $VIRT"
+    info "theme:      $(theme_current)"
+    info "picom:      backend=$PICOM_BACKEND"
+    local miss=() c
+    for c in i3 polybar picom kitty rofi feh flameshot dunst xclip; do
+        has "$c" || miss+=("$c")
+    done
+    (( ${#miss[@]} )) && warn "missing commands: ${miss[*]}" || ok "core commands present"
+    for c in starship zoxide fzf eza batcat btop; do has "$c" || warn "optional missing: $c"; done
+    fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd" || warn "JetBrainsMono Nerd Font not found"
+    [[ -f "$OKOKO_GEN/colors.sh" ]] && ok "theme rendered" || warn "theme not rendered yet — run: okoko theme"
+    if [[ -L "$HOME/.config/i3/config" ]]; then ok "dotfiles linked"; else warn "dotfiles not linked — run: okoko link"; fi
+    autofit_status
+    [[ -n "${DISPLAY:-}" ]] && { has i3 && i3 -C -c "$HOME/.config/i3/config" >/dev/null 2>&1 && ok "i3 config valid" || warn "i3 config check failed (or no X)"; }
+}
+
+cmd_update() {
+    step "okoko update"
+    if [[ -d "$OKOKO_ROOT/.git" ]]; then spin "git pull" git -C "$OKOKO_ROOT" pull --ff-only; fi
+    link_bin; link_tree ".config"; link_tree ".local" 2>/dev/null || true
+    for f in .zshrc .xsessionrc; do link_file "$OKOKO_ROOT/home/$f" "$HOME/$f"; done
+    theme_apply "$(theme_current)"
+    ok "up to date"
+}
+
+cmd_uninstall() {
+    step "okoko uninstall"
+    confirm "Remove all okoko symlinks and restore backups?" n || { info "cancelled"; exit; }
+    unlink_all; restore_latest_backup
+    ok "done — your previous dotfiles (if any) are back"
+}
+
+[[ "${1:-}" == -h || "${1:-}" == --help || $# -eq 0 ]] && { usage; exit 0; }
+args=(); for a in "$@"; do case "$a" in
+    --dry-run) DRY_RUN=1 ;; --yes|-y) ASSUME_YES=1 ;; *) args+=("$a") ;;
+esac; done
+set -- "${args[@]}"
+cmd="$1"; shift || true
+case "$cmd" in
+    theme)     cmd_theme "$@" ;;
+    wallpaper|wall) okoko-wall "${1:-restore}" ;;
+    bar)       okoko-bar launch ;;
+    doctor)    cmd_doctor ;;
+    autofit)   detect_all; case "${1:-bash}" in bash|rs) sudo_keepalive; autofit_install "${1:-bash}" ;; *) die "usage: okoko autofit [bash|rs]" ;; esac ;;
+    link)      BACKUP_STAMP=$(date +%Y%m%d-%H%M%S); link_bin; link_tree ".config"; for f in .zshrc .xsessionrc; do link_file "$OKOKO_ROOT/home/$f" "$HOME/$f"; done; ok "linked" ;;
+    update)    cmd_update ;;
+    uninstall) cmd_uninstall ;;
+    version|--version) echo "okoko $(cat "$OKOKO_ROOT/VERSION" 2>/dev/null || echo dev)" ;;
+    *) err "unknown command: $cmd"; usage; exit 1 ;;
+esac

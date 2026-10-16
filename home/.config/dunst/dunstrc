@@ -1,0 +1,28 @@
+# okoko · dunst — colors in dunstrc.d/90-okoko-colors.conf (generated)
+[global]
+    monitor = 0
+    follow = mouse
+    origin = top-right
+    offset = (12, 44)
+    width = (240, 380)
+    notification_limit = 5
+    corner_radius = 8
+    frame_width = 2
+    padding = 10
+    horizontal_padding = 12
+    gap_size = 6
+    font = JetBrainsMono Nerd Font 10
+    markup = full
+    format = "<b>%s</b>\n%b"
+    icon_theme = Papirus-Dark
+    enable_recursive_icon_lookup = true
+    max_icon_size = 40
+    mouse_left_click = do_action, close_current
+    mouse_right_click = close_all
+
+[urgency_low]
+    timeout = 4
+[urgency_normal]
+    timeout = 6
+[urgency_critical]
+    timeout = 0

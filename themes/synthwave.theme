@@ -1,0 +1,21 @@
+# synthwave — retro night, neon pink & sunset orange.
+# Color Hunt: https://colorhunt.co/palette/0d1164640d5fea2264f78d60
+NAME="synthwave"
+COLORHUNT="https://colorhunt.co/palette/0d1164640d5fea2264f78d60"
+BG="#0D1164"       # Color Hunt 1
+SURFACE="#640D5F"  # Color Hunt 2
+ACCENT2="#EA2264"  # Color Hunt 3
+ACCENT="#F78D60"   # Color Hunt 4
+FG="#F5E6FF"
+BG_ALT="#0A0D4A"
+MUTED="#A99BE0"
+URGENT="#FF3D7F"
+WARN="#FFD166"
+C0="#0A0D4A" C8="#7366C2"
+C1="#FF3D7F" C9="#FF6E9C"
+C2="#72F1B8" C10="#9DF7CF"
+C3="#FEDE5D" C11="#FFEB94"
+C4="#36F9F6" C12="#7AFBF9"
+C5="#FF7EDB" C13="#FFA6E7"
+C6="#03EDF9" C14="#6BF4FB"
+C7="#F5E6FF" C15="#FFFFFF"

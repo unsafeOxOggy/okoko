@@ -1,0 +1,21 @@
+# okoko — default theme. Dark terminal green.
+# Color Hunt: https://colorhunt.co/palette/091413285a48408a71b0e4cc
+NAME="okoko"
+COLORHUNT="https://colorhunt.co/palette/091413285a48408a71b0e4cc"
+BG="#091413"       # Color Hunt 1
+SURFACE="#285A48"  # Color Hunt 2
+ACCENT="#408A71"   # Color Hunt 3
+FG="#B0E4CC"       # Color Hunt 4
+BG_ALT="#0F1F1C"
+ACCENT2="#5FD38D"
+MUTED="#6E9A8A"
+URGENT="#E0607E"
+WARN="#E5C07B"
+C0="#0F1F1C" C8="#527D6E"
+C1="#E0607E" C9="#F07A95"
+C2="#5FD38D" C10="#8BF0B0"
+C3="#E5C07B" C11="#F2D49B"
+C4="#5FA8D3" C12="#82C4EC"
+C5="#B98EE0" C13="#D0AEF0"
+C6="#4FC1A6" C14="#7FE0C8"
+C7="#B0E4CC" C15="#E2F7EE"

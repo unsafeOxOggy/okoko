@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# okoko-session — idempotent autostart, safe to run on every i3 (re)start.
+set -uo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
+mkdir -p "$STATE"
+
+# run a single instance of a long-running daemon
+once() { local name="$1"; shift; pgrep -x "$name" >/dev/null || "$@" & }
+
+# 1. make sure a theme has been rendered at least once
+[[ -f "$CONF/okoko/current/colors.sh" ]] || okoko theme "$(cat "$STATE/theme" 2>/dev/null || echo okoko)" --no-reload
+
+# 2. compositor — backend chosen by hardware
+backend=xrender
+if command -v glxinfo >/dev/null && [[ -n "${DISPLAY:-}" ]]; then
+    r=$(timeout 3 glxinfo -B 2>/dev/null | awk -F': ' '/OpenGL renderer/{print $2}')
+    case "$r" in ""|*llvmpipe*|*softpipe*|*SVGA3D*|*virgl*) backend=xrender ;; *) backend=glx ;; esac
+fi
+pkill -x picom 2>/dev/null
+picom --backend "$backend" --config "$CONF/picom/picom.conf" & disown
+
+# 3. wallpaper, notifications, bar
+okoko-wall restore
+once dunst dunst
+okoko-bar launch
+
+# 4. VM guest integration (clipboard / resolution)
+if systemd-detect-virt --vm --quiet 2>/dev/null; then
+    once spice-vdagent spice-vdagent
+    command -v vmware-user-suid-wrapper >/dev/null && vmware-user-suid-wrapper &
+fi
+
+# 5. misc one-shots
+once unclutter unclutter --timeout 3 --jitter 20 --ignore-scrolling
+xss-lock -- okoko-lock & 2>/dev/null
+command -v nm-applet >/dev/null && once nm-applet nm-applet --indicator
+exit 0
