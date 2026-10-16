@@ -115,6 +115,15 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
   partagée ; seuls des numéros sont imprimés (pas d'injection de tags polybar). Couleurs des
   cases : actif FG/BG, occupé MUTED/BG, vide SURFACE/FG, urgent URGENT + texte le plus
   contrasté (contrastes >= 4.5:1 vérifiés sur les 7 thèmes).
+  **Resize** : `screenchange-reload` de polybar laisse les îlots vides après un changement de taille
+  -> désactivé ; `okoko-bar watch` (lancé par okoko-session, verrou flock = 1 seul par session)
+  s'abonne aux événements `output` d'i3, regroupe la rafale (1 s) puis relance les îlots et
+  `okoko-wall restore`. Testé : 1920x982 <-> 1920x1080 <-> 1280x1024.
+- **Souris décalée dans la VM** (2026-10-16) : cause = `agent-mouse` SPICE (souris via la tablette
+  virtuelle de spice-vdagent, qui garde l'ancienne taille après un resize). Corrigé côté hôte :
+  `<mouse mode='server'/>` dans `<graphics type='spice'>` de `kali-i3` => `agent-mouse=off`, la
+  souris passe par la tablette USB QEMU (absolue, suit la taille réelle). Presse-papier inchangé.
+  Sauvegarde de l'ancienne définition : `~/DEV/kali/vm-backup/` (hors dépôt).
 - **sudo sur la VM** : Kali = tickets sudo par-tty ; feeding du mdp programmatiquement bloqué par
   le classificateur. -> laisser l'utilisateur lancer les étapes sudo lui-même (cf. règle CLAUDE.md
   globale "me prévenir pour les actions manuelles").

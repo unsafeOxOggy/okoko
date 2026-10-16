@@ -25,6 +25,7 @@ picom --backend "$backend" --config "$CONF/picom/picom.conf" & disown
 okoko-wall restore
 once dunst dunst
 okoko-bar launch
+okoko-bar watch </dev/null >/dev/null 2>&1 & disown   # relaunch bar on screen resize
 
 # 4. VM guest integration (clipboard / resolution)
 if systemd-detect-virt --vm --quiet 2>/dev/null; then
