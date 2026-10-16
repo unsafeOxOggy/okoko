@@ -9,7 +9,7 @@ THEME_VARS=(BG BG_ALT SURFACE ACCENT ACCENT2 FG MUTED URGENT WARN
             C0 C1 C2 C3 C4 C5 C6 C7 C8 C9 C10 C11 C12 C13 C14 C15)
 
 # template -> destination
-declare -A THEME_TARGETS=(
+declare -gA THEME_TARGETS=(   # -g: stays global even when sourced from a function (bats setup)
     [i3-colors.conf]="$OKOKO_GEN/i3-colors.conf"
     [polybar-colors.ini]="$OKOKO_GEN/polybar-colors.ini"
     [kitty-theme.conf]="$OKOKO_GEN/kitty-theme.conf"
