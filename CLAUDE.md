@@ -119,6 +119,13 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
   -> désactivé ; `okoko-bar watch` (lancé par okoko-session, verrou flock = 1 seul par session)
   s'abonne aux événements `output` d'i3, regroupe la rafale (1 s) puis relance les îlots et
   `okoko-wall restore`. Testé : 1920x982 <-> 1920x1080 <-> 1280x1024.
+- **Délai au lancement** (2026-10-16) : kitty met ~1,9 s à démarrer dans la VM (Python + OpenGL virgl,
+  même sans config ; zsh = 0,1 s, starship = 8 ms). => `$term = kitty -1 --instance-group okoko` +
+  instance cachée pré-lancée par okoko-session (`pgrep -f '^kitty -1 ...'`, ancré : un `-f` non ancré
+  matchait des lignes de commande ssh) : nouveau terminal 0,45-0,7 s au lieu de ~2,5 s. Exec du
+  terminal en `--no-startup-id` (sinon curseur "occupé"). picom `no-fading-openclose`. Firefox
+  ~2,7 s (incompressible). Note : picom v13 a un processus enfant -> `pgrep -c picom` = 2 est normal.
+  Une mesure isolée à 74 s juste après 3 `i3-msg restart` enchaînés, non reproduite.
 - **Souris décalée dans la VM** (2026-10-16) : cause = `agent-mouse` SPICE (souris via la tablette
   virtuelle de spice-vdagent, qui garde l'ancienne taille après un resize). Corrigé côté hôte :
   `<mouse mode='server'/>` dans `<graphics type='spice'>` de `kali-i3` => `agent-mouse=off`, la
