@@ -18,7 +18,7 @@ menu_power() {
     local sel
     sel=$(printf ' Lock\n Logout\n Suspend\n Reboot\n Shutdown' | _rofi -p "power" -theme-str 'listview {lines: 5;}') || return
     case "$sel" in
-        *Lock)     okoko-lock ;;
+        *Lock)     xflock4 ;;
         *Logout)   i3-msg exit ;;
         *Suspend)  systemctl suspend ;;
         *Reboot)   systemctl reboot ;;

@@ -36,7 +36,6 @@ bin/okoko-session      # autostart idempotent (exec_always depuis i3) : picom, b
 bin/okoko-bar          # lance les îlots polybar sur chaque écran + modules vpn/target/workspaces
 bin/okoko-menu         # menus rofi : theme | power | target | keys (cheat sheet générée)
 bin/okoko-wall         # wallpaper : next/gen/restore (gen = formes géométriques depuis la palette)
-bin/okoko-lock         # i3lock-color thémé
 bin/okoko-dropdown     # terminal déroulant (scratchpad)
 templates/             # 1 fichier/app avec tokens {{COULEUR}} (+ starship.toml, colors.sh, btop.theme...)
 themes/*.theme         # palettes
@@ -68,7 +67,7 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
 - [x] Projet écrit, 7 thèmes, `bash -n` + i3 `-C` OK, git branche `master`.
 - [x] Déployé sur la VM : dotfiles **linkés**, thème **rendu**, CLI `okoko` opérationnelle.
 - [!] **Paquets apt PAS encore installés** sur la VM (dunst, fonts-jetbrains-mono, papirus,
-  unclutter, i3lock-color, xss-lock + extras fzf/eza/bat/zoxide/starship/btop/gum...).
+  unclutter, xfce4-screensaver + extras fzf/eza/bat/zoxide/starship/btop/gum...).
   -> l'utilisateur doit lancer **`cd ~/okoko && ./install.sh`** dans un terminal de la VM
   (le classificateur de sécurité empêche Claude de saisir le mot de passe sudo à sa place).
 - [x] Remote GitHub `git@github.com:unsafeOxOggy/okoko.git` (**public**). Le `.git` local a disparu le
@@ -126,6 +125,10 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
   terminal en `--no-startup-id` (sinon curseur "occupé"). picom `no-fading-openclose`. Firefox
   ~2,7 s (incompressible). Note : picom v13 a un processus enfant -> `pgrep -c picom` = 2 est normal.
   Une mesure isolée à 74 s juste après 3 `i3-msg restart` enchaînés, non reproduite.
+- **Verrouillage** (2026-10-16, demandé) : okoko-lock (i3lock thémé) + xss-lock retirés ; on utilise
+  celui de Kali, xfce4-screensaver (verrouillage après inactivité selon ses réglages) lancé par
+  okoko-session (i3 n'exécute pas l'autostart XDG), `Super+Escape` / menu power -> `xflock4`.
+  `once()` compare sur 15 caractères (le noyau tronque les noms de processus : `xfce4-screensav`).
 - **Presse-papier universel + historique** (2026-10-16, demandé, style Omarchy) : `bin/okoko-clip`.
   copy/cut/paste : terminal détecté via `xprop` WM_CLASS (le `xdotool getwindowclassname` de Kali
   n'existe pas) -> Ctrl+Shift+C/V, sinon Ctrl+C/X/V ; bindings i3 en `--release`. history : CopyQ

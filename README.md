@@ -103,7 +103,7 @@ okoko
 |-- okoko                 # the CLI (theme/doctor/update/...)
 |-- install.sh            # idempotent installer (symlink + backup)
 |-- lib/                  # core.sh - detect.sh - theme.sh - link.sh - autofit.sh
-|-- bin/                  # okoko-session - okoko-bar - okoko-menu - okoko-wall - okoko-lock - okoko-dropdown
+|-- bin/                  # okoko-session - okoko-bar - okoko-menu - okoko-wall - okoko-clip - okoko-dropdown
 |-- templates/            # one file per app, with {{COLOR}} placeholders
 |-- themes/               # *.theme palettes
 |-- home/                 # dotfiles, symlinked into ~ (i3 split into config.d/, zsh split into okoko/zsh/)
