@@ -13,18 +13,81 @@ vpn_ip() {
     return 1
 }
 
+# The bar is made of "islands" (see ~/.config/polybar/config.ini), one polybar each.
+BARS=(icons workspaces title status)
+
+# Workspace boxes for the bar: 1-5 always shown, plus any other numbered workspace.
+# Only numbers are printed (never names or titles), so nothing can inject polybar tags.
+workspaces() {
+    # shellcheck disable=SC1091
+    [[ -r "$CONF/okoko/current/colors.sh" ]] && source "$CONF/okoko/current/colors.sh"
+    BG="${BG:-#000000}" FG="${FG:-#ffffff}" MUTED="${MUTED:-#888888}" SURFACE="${SURFACE:-#333333}" URGENT="${URGENT:-#ff5555}" \
+    exec python3 -I -c '
+import json, os, subprocess
+
+C = {k: os.environ[k] for k in ("BG", "FG", "MUTED", "SURFACE", "URGENT")}
+PERSISTENT = 5
+
+def lum(h):
+    c = [int(h.lstrip("#")[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    c = [x / 12.92 if x <= 0.03928 else ((x + 0.055) / 1.055) ** 2.4 for x in c]
+    return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+def readable_on(bg):  # BG or FG, whichever contrasts most (WCAG ratio)
+    return max((C["BG"], C["FG"]), key=lambda t: (max(lum(t), lum(bg)) + 0.05) / (min(lum(t), lum(bg)) + 0.05))
+
+def render():
+    try:
+        out = subprocess.run(["i3-msg", "-t", "get_workspaces"], capture_output=True, text=True, timeout=2).stdout
+        spaces = {w["num"]: w for w in json.loads(out) if isinstance(w.get("num"), int) and 0 < w["num"] < 100}
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return
+    def colors(w):
+        if w is None:
+            return C["SURFACE"], C["FG"]                # empty
+        if w.get("urgent"):
+            return C["URGENT"], readable_on(C["URGENT"])
+        if w.get("focused"):
+            return C["FG"], C["BG"]                     # active
+        return C["MUTED"], C["BG"]                      # occupied
+
+    def box(n, w, label):
+        bg, fg = colors(w)
+        return f"%{{A1:i3-msg -q workspace number {n}:}}%{{B{bg}}}%{{F{fg}}} {label} %{{F-}}%{{B-}}%{{A}}"
+
+    boxes = [box(n, spaces.get(n), n) for n in range(1, PERSISTENT + 1)]
+    # The island has a fixed width: workspaces above 5 share one extra box, showing the
+    # focused/urgent one if any, else "+count".
+    extra = sorted(n for n in spaces if n > PERSISTENT)
+    if extra:
+        hot = [n for n in extra if spaces[n].get("focused") or spaces[n].get("urgent")]
+        n = hot[0] if hot else extra[0]
+        boxes.append(box(n, spaces[n], n if hot else f"+{len(extra)}"))
+    print("%{O4}".join(boxes), flush=True)
+
+render()
+sub = subprocess.Popen(["i3-msg", "-t", "subscribe", "-m", "[\"workspace\",\"output\"]"],
+                       stdout=subprocess.PIPE, text=True)
+for _ in sub.stdout:
+    render()
+'
+}
+
 case "${1:-launch}" in
     launch)
         pkill -x polybar 2>/dev/null
         while pgrep -x polybar >/dev/null; do sleep 0.2; done
         if command -v polybar >/dev/null; then
             mapfile -t mons < <(polybar --list-monitors | cut -d: -f1)
-            for m in "${mons[@]:-}"; do
-                MONITOR="$m" polybar -q -r main -c "$CONF/polybar/config.ini" >>"$STATE/polybar.log" 2>&1 & disown
+            [[ ${#mons[@]} -eq 0 ]] && mons=("")
+            for m in "${mons[@]}"; do
+                for b in "${BARS[@]}"; do
+                    MONITOR="$m" polybar -q -r "$b" -c "$CONF/polybar/config.ini" >>"$STATE/polybar.log" 2>&1 & disown
+                done
             done
-            [[ ${#mons[@]} -eq 0 ]] && { polybar -q -r main -c "$CONF/polybar/config.ini" >>"$STATE/polybar.log" 2>&1 & disown; }
         fi
         ;;
+    workspaces) workspaces ;;
     vpn)
         if ip=$(vpn_ip); then
             [[ "${2:-}" == --copy ]] && { printf '%s' "$ip" | xclip -selection clipboard; notify-send "okoko" "VPN IP copied: $ip" 2>/dev/null; exit; }
@@ -41,5 +104,5 @@ case "${1:-launch}" in
         [[ "${2:-}" == --copy ]] && { printf '%s' "$t" | xclip -selection clipboard; notify-send "okoko" "target copied: $t" 2>/dev/null; exit; }
         printf '%s\n' "$t"
         ;;
-    *) echo "usage: okoko-bar {launch|vpn [--copy|--plain]|target [--copy|--plain]}" >&2; exit 1 ;;
+    *) echo "usage: okoko-bar {launch|workspaces|vpn [--copy|--plain]|target [--copy|--plain]}" >&2; exit 1 ;;
 esac

@@ -33,7 +33,7 @@ lib/detect.sh          # distro, virt (systemd-detect-virt), backend picom (xren
 lib/theme.sh           # moteur de thèmes : THEME_VARS, THEME_TARGETS, theme_apply/reload
 lib/link.sh            # symlinks + backup + manifest (~/.local/state/okoko/manifest) + restore
 bin/okoko-session      # autostart idempotent (exec_always depuis i3) : picom, bar, wall, dunst, agent VM
-bin/okoko-bar          # lance polybar sur chaque écran + modules custom vpn/target
+bin/okoko-bar          # lance les îlots polybar sur chaque écran + modules vpn/target/workspaces
 bin/okoko-menu         # menus rofi : theme | power | target | keys (cheat sheet générée)
 bin/okoko-wall         # wallpaper : next/gen/restore (gen = formes géométriques depuis la palette)
 bin/okoko-lock         # i3lock-color thémé
@@ -101,8 +101,20 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
 - **Glyphs Nerd Font** : écrire un fichier directement via l'outil Write peut perdre les
   glyphes PUA. Méthode utilisée : écrire des tokens `@@xHEX@@` (ex `@@xf31a@@`) puis convertir
   en une passe Python (`chr(int(hex,16))`, via `os.walk` pour attraper les dossiers cachés `.config`).
-- **Pas de `curl | sh`** : plugins zsh via paquets Debian ; Nerd Font téléchargée seulement si
-  `fonts-jetbrains-mono` indispo.
+- **Pas de `curl | sh`** : plugins zsh via paquets Debian. La **Nerd Font** est toujours requise
+  (le paquet Debian `fonts-jetbrains-mono` est la police *sans* icônes) : install.sh étape 2 la
+  télécharge depuis la release Nerd Fonts épinglée (`NERD_VER`) et vérifie `NERD_SHA256`.
+  Bug corrigé le 2026-10-16 : l'ancien test sur le paquet Debian sautait le téléchargement
+  -> plus aucune icône dans polybar.
+- **Barre "îlots"** (2026-10-16, demandé par l'utilisateur) : style waybar-themes V2.2 porté
+  sur polybar. 4 barres `override-redirect` (icons, workspaces, title, status) lancées par
+  `okoko-bar launch`, bordure 2px `colors.border` (FG 80%), fond `colors.background` (BG 90%),
+  radius 4. Largeurs fixes (polybar ne s'auto-dimensionne pas) ; i3 réserve la place avec
+  `gaps top 36` (pas de `smart_gaps`, sinon fenêtres sous la barre). Workspaces = script
+  `okoko-bar workspaces` (python3, abonnement i3) : 1-5 toujours affichés, au-delà une 6e case
+  partagée ; seuls des numéros sont imprimés (pas d'injection de tags polybar). Couleurs des
+  cases : actif FG/BG, occupé MUTED/BG, vide SURFACE/FG, urgent URGENT + texte le plus
+  contrasté (contrastes >= 4.5:1 vérifiés sur les 7 thèmes).
 - **sudo sur la VM** : Kali = tickets sudo par-tty ; feeding du mdp programmatiquement bloqué par
   le classificateur. -> laisser l'utilisateur lancer les étapes sudo lui-même (cf. règle CLAUDE.md
   globale "me prévenir pour les actions manuelles").

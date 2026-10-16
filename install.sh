@@ -39,18 +39,24 @@ apt_install "${CORE[@]}"
 [[ "$MINIMAL" == 1 ]] || apt_install "${EXTRA[@]}"
 if [[ "$VIRT" != none ]]; then apt_install "${VM[@]}"; fi
 
-step "2/7  Nerd Font fallback"
-if ! fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd"; then
-    if ! dpkg -l fonts-jetbrains-mono >/dev/null 2>&1; then
-        TMP_DIR=$(mktemp -d); trap 'rm -rf "$TMP_DIR"' EXIT
-        spin "download JetBrainsMono Nerd Font" wget -q -O "$TMP_DIR/f.tar.xz" \
-          "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/JetBrainsMono.tar.xz"
-        run mkdir -p "$HOME/.local/share/fonts"
-        run tar -xf "$TMP_DIR/f.tar.xz" -C "$HOME/.local/share/fonts"
+step "2/7  Nerd Font"
+# Debian's fonts-jetbrains-mono is the plain font (no icons): the bar, rofi and the
+# prompt need the *Nerd Font* build, which Debian does not package. Pinned + checksummed.
+NERD_VER=v3.4.0
+NERD_SHA256=ef552a3e638f25125c6ad4c51176a6adcdce295ab1d2ffacf0db060caf8c1582
+if ! fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font"; then
+    TMP_DIR=$(mktemp -d); trap 'rm -rf "$TMP_DIR"' EXIT
+    spin "download JetBrainsMono Nerd Font $NERD_VER" wget -q -O "$TMP_DIR/f.tar.xz" \
+      "https://github.com/ryanoasis/nerd-fonts/releases/download/$NERD_VER/JetBrainsMono.tar.xz"
+    if [[ "$DRY_RUN" == 1 ]] || echo "$NERD_SHA256  $TMP_DIR/f.tar.xz" | sha256sum --quiet -c -; then
+        run mkdir -p "$HOME/.local/share/fonts/JetBrainsMonoNerd"
+        run tar -xf "$TMP_DIR/f.tar.xz" -C "$HOME/.local/share/fonts/JetBrainsMonoNerd" --wildcards '*.ttf'
+        run fc-cache -f
+    else
+        warn "Nerd Font checksum mismatch - not installed (icons will be missing)"
     fi
-    run fc-cache -f
 fi
-ok "font ready"
+fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font" && ok "font ready" || warn "JetBrainsMono Nerd Font missing"
 
 step "3/7  deploy dotfiles (symlinks + backup)"
 BACKUP_STAMP=$(date +%Y%m%d-%H%M%S)

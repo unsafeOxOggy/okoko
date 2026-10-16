@@ -125,8 +125,16 @@ okoko
   vendored here; `okoko autofit rs` uses a `kvm-autofit-rs` checkout found in
   `~/kvm-autofit-rs` (or `$KVM_AUTOFIT_RS_DIR`) and falls back to bash otherwise.
   In virt-manager keep *View -> Scale Display -> Auto resize VM with window* on.
-- **Nothing runs `curl | sh`**: zsh plugins come from Debian packages; the Nerd
-  Font is only fetched if `fonts-jetbrains-mono` isn't available.
+- **The bar is a row of "islands"** in the style of
+  [waybar-themes V2.2](https://github.com/HANCORE-linux/waybar-themes) (HANCORE-linux),
+  ported from Waybar/Hyprland to polybar/i3: icons, workspaces 1-5 (always shown, as
+  boxes), window title, and "value + icon" status (VPN IP, target, CPU, RAM, date),
+  each framed by a 2px rounded border over a transparent strip. Polybar cannot frame a
+  group of modules, so each island is its own small bar (`okoko-bar launch` starts them)
+  and i3 keeps the top strip free with `gaps top`.
+- **Nothing runs `curl | sh`**: zsh plugins come from Debian packages. The
+  JetBrainsMono Nerd Font (needed for the bar icons; Debian only ships the plain
+  font) is downloaded from a pinned Nerd Fonts release and checked against a sha256.
 - The target/VPN helpers keep your `tun0` IP and current engagement target
   visible on the bar and in the prompt - handy on a lab VM you own and snapshot.
 
