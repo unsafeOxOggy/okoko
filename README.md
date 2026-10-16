@@ -51,6 +51,7 @@ okoko theme --list      list themes
 okoko wallpaper next    cycle wallpaper (or: gen | restore)
 okoko doctor            check the environment, report problems
 okoko autofit [bash|rs] install kvm-autofit (screen follows the KVM window)
+okoko-clip history      clipboard history menu (Super+Ctrl+V)
 okoko link              (re)deploy dotfiles as symlinks
 okoko update            git pull + relink + reapply theme
 okoko uninstall         remove symlinks, restore backups
@@ -132,6 +133,17 @@ okoko
   each framed by a 2px rounded border over a transparent strip. Polybar cannot frame a
   group of modules, so each island is its own small bar (`okoko-bar launch` starts them)
   and i3 keeps the top strip free with `gaps top`.
+- **Universal clipboard + history** (after the
+  [Omarchy manual](https://learn.omacom.io/2/the-omarchy-manual/105/universal-clipboard-history)):
+  `Super+C` / `Super+X` / `Super+V` copy, cut and paste everywhere (`okoko-clip` sends
+  Ctrl+Shift+C/V in terminals, Ctrl+C/X/V elsewhere); `Super+Ctrl+V` opens the
+  history (text and images, type to search, Return puts the item back on the
+  clipboard). History is kept by CopyQ, started hidden by `okoko-session` (100 items,
+  mouse selection ignored, copies flagged secret by password managers are skipped);
+  image previews live in `$XDG_RUNTIME_DIR` only. Moved keys: split vertical is now
+  `Super+Shift+V`, the power menu `Super+Shift+Escape`.
+- **Terminals open instantly**: one kitty instance (`kitty -1`) is pre-started hidden,
+  so a new terminal is a new window (~0.5s) instead of a new process (~2.5s in a VM).
 - **Nothing runs `curl | sh`**: zsh plugins come from Debian packages. The
   JetBrainsMono Nerd Font (needed for the bar icons; Debian only ships the plain
   font) is downloaded from a pinned Nerd Fonts release and checked against a sha256.

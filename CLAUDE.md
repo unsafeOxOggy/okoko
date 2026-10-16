@@ -126,6 +126,19 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
   terminal en `--no-startup-id` (sinon curseur "occupé"). picom `no-fading-openclose`. Firefox
   ~2,7 s (incompressible). Note : picom v13 a un processus enfant -> `pgrep -c picom` = 2 est normal.
   Une mesure isolée à 74 s juste après 3 `i3-msg restart` enchaînés, non reproduite.
+- **Presse-papier universel + historique** (2026-10-16, demandé, style Omarchy) : `bin/okoko-clip`.
+  copy/cut/paste : terminal détecté via `xprop` WM_CLASS (le `xdotool getwindowclassname` de Kali
+  n'existe pas) -> Ctrl+Shift+C/V, sinon Ctrl+C/X/V ; bindings i3 en `--release`. history : CopyQ
+  (paquet Kali, choisi par l'utilisateur) lancé caché par okoko-session (`okoko-clip setup` :
+  maxitems 100, pas de tray/fenêtre, sélection souris ignorée, puis `copyq hide`). Menu rofi,
+  aperçus PNG dans `$XDG_RUNTIME_DIR` effacés après. **Piège** : le CLI copyq transforme les `\t`/`\n`
+  de ses arguments -> le JS passé à `copyq eval` ne doit contenir AUCUN backslash (codes de
+  caractères). Vérifié : CopyQ ignore ses propres copies et les copies `x-kde-passwordManagerHint:
+  secret` d'autres applis (test avec une appli Tk tierce). Touches déplacées : split v ->
+  Super+Shift+V, menu power -> Super+Shift+Escape (Super+Escape = verrouillage). rofi : lignes
+  normal/alternate en transparent (fond beige par défaut corrigé).
+  **Tests** : ne jamais taper au clavier via xdotool sans avoir confirmé la fenêtre cible (un test
+  a tapé dans le terminal de l'utilisateur) ; écran verrouillé (i3lock) = aucun événement simulé.
 - **Souris décalée dans la VM** (2026-10-16) : cause = `agent-mouse` SPICE (souris via la tablette
   virtuelle de spice-vdagent, qui garde l'ancienne taille après un resize). Corrigé côté hôte :
   `<mouse mode='server'/>` dans `<graphics type='spice'>` de `kali-i3` => `agent-mouse=off`, la

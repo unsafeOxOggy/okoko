@@ -40,7 +40,7 @@ menu_keys() {
     awk '
       /^## / { sub(/^## /,""); split($0,a,": "); cat=a[1]; desc=a[2]; next }
       /^bindsym / && cat {
-        key=$2; gsub(/\$mod/,"Super",key); gsub(/\+/," + ",key);
+        key=($2 == "--release") ? $3 : $2; gsub(/\$mod/,"Super",key); gsub(/\+/," + ",key);
         printf "%-28s  %-11s  %s\n", key, cat, desc; cat=""
       }' "$ROOT/home/.config/i3/config.d/10-keys.conf" \
       "$ROOT/home/.config/i3/config.d/20-workspaces.conf" 2>/dev/null \

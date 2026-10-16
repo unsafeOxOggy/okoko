@@ -56,6 +56,7 @@ listview { lines: 8; columns: 1; fixed-height: false; dynamic: true; scrollbar: 
 element { padding: 7px 12px; spacing: 10px; }
 element-icon { size: 20px; }
 element-text { text-color: inherit; vertical-align: 0.5; }
+element normal.normal, element alternate.normal { background-color: transparent; text-color: @text-main; }
 element selected.normal { background-color: @surface; text-color: @text-main; }
 element selected.active { background-color: @accent; text-color: @bg-base; }
 element normal.urgent, element selected.urgent { text-color: @urgent; }

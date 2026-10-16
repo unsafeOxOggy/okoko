@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# okoko-clip - universal copy/cut/paste and clipboard history (Omarchy-style, on X11).
+#
+#   okoko-clip copy|cut|paste   send the right keys to the focused window:
+#                               terminals use Ctrl+Shift+C/V, everything else Ctrl+C/X/V
+#   okoko-clip history          rofi menu of the CopyQ history (text + images, searchable);
+#                               Return puts the entry back on the clipboard, Super+V pastes it
+#   okoko-clip setup            start CopyQ hidden and apply okoko's settings (okoko-session)
+#
+# Privacy: image previews are written to $XDG_RUNTIME_DIR (RAM, private), never to disk;
+# entries are shown as plain text (no rofi markup) with control characters stripped.
+set -uo pipefail
+export PATH="$HOME/.local/bin:$PATH"
+
+MAX_ITEMS=100            # kept by CopyQ
+TERMINALS=" kitty okoko-float okoko-dropdown alacritty xterm urxvt qterminal xfce4-terminal gnome-terminal terminator tilix st-256color "
+
+focused_is_terminal() {
+    # xprop, not "xdotool getwindowclassname" (missing from Kali's xdotool).
+    # WM_CLASS = "instance", "class": a terminal if either name is listed.
+    local win names name
+    win=$(xdotool getactivewindow 2>/dev/null) || return 1
+    names=$(xprop -id "$win" WM_CLASS 2>/dev/null | sed -n 's/^WM_CLASS([^)]*) = "\([^"]*\)", "\([^"]*\)"$/\1 \2/p' | tr '[:upper:]' '[:lower:]')
+    for name in $names; do [[ $TERMINALS == *" $name "* ]] && return 0; done
+    return 1
+}
+
+send() { xdotool key --clearmodifiers "$1"; }
+
+need_copyq() {
+    command -v copyq >/dev/null || { notify-send "okoko" "CopyQ is not installed (sudo apt install copyq)" 2>/dev/null; exit 1; }
+    copyq count >/dev/null 2>&1 || setup
+}
+
+setup() {
+    command -v copyq >/dev/null || return 0
+    pgrep -x copyq >/dev/null || { copyq --start-server >/dev/null 2>&1 & disown; }
+    for _ in $(seq 1 50); do copyq count >/dev/null 2>&1 && break; sleep 0.1; done
+    # Hidden (no window, no tray), bounded history, clipboard only (not the mouse selection).
+    local kv
+    for kv in "maxitems $MAX_ITEMS" "disable_tray true" "hide_main_window true" \
+              "check_clipboard true" "check_selection false" "copy_clipboard false" "copy_selection false"; do
+        # shellcheck disable=SC2086
+        copyq config $kv >/dev/null 2>&1 || true
+    done
+    copyq hide >/dev/null 2>&1 || true   # first start shows the window before the config applies
+}
+
+history() {
+    need_copyq
+    local cache="${XDG_RUNTIME_DIR:-/tmp}/okoko-clip"
+    rm -rf "$cache" && mkdir -m 700 -p "$cache"
+
+    # One CopyQ call lists the rows: "<row>\t<image|text>\t<one-line preview>".
+    # Quoted heredoc: bash leaves the JavaScript untouched (no escaping layer).
+    local script listing
+    script=$(cat <<'JS'
+// No backslash anywhere in this script: the copyq CLI turns backslash sequences in its
+// arguments into real characters (tab, newline), which breaks JavaScript string literals.
+var TAB = String.fromCharCode(9), NL = String.fromCharCode(10);
+function oneLine(s) {  // control chars -> space, collapse spaces
+    var o = '';
+    for (var k = 0; k < s.length; ++k) {
+        var c = s.charCodeAt(k);
+        o += (c < 32 || c === 127) ? ' ' : s.charAt(k);
+    }
+    return o.replace(/ +/g, ' ').trim();
+}
+var n = Math.min(size(), 100), out = [];
+for (var i = 0; i < n; ++i) {
+    var fmts = str(read('?', i));
+    if (fmts.indexOf('image/png') !== -1) { out.push(i + TAB + 'image' + TAB); continue; }
+    out.push(i + TAB + 'text' + TAB + oneLine(str(read('text/plain', i))).substring(0, 160));
+}
+print(out.join(NL));
+JS
+)
+    listing=$(copyq eval "$script" 2>/dev/null) || exit 1
+
+    # Bash strings cannot hold NUL, so the rofi icon syntax ("text\0icon\x1fpath") is
+    # only produced by printf when the menu is written.
+    local rows=() texts=() icons=() row kind text n=0
+    while IFS=$'\t' read -r row kind text; do
+        [[ $row =~ ^[0-9]+$ ]] || continue
+        if [[ $kind == image ]]; then
+            copyq read image/png "$row" >"$cache/$row.png" 2>/dev/null
+            texts+=("image #$((n + 1))"); icons+=("$cache/$row.png")
+        else
+            [[ -z $text ]] && continue
+            texts+=("$text"); icons+=("")
+        fi
+        rows+=("$row"); n=$((n + 1))
+    done <<<"$listing"
+
+    if (( n == 0 )); then notify-send "okoko" "clipboard history is empty" 2>/dev/null; return; fi
+
+    local pick
+    pick=$(for ((i = 0; i < n; i++)); do
+               if [[ -n ${icons[i]} ]]; then printf '%s\0icon\x1f%s\n' "${texts[i]}" "${icons[i]}"
+               else printf '%s\n' "${texts[i]}"; fi
+           done | rofi -dmenu -i -show-icons -format i -p "clipboard" \
+        -mesg "Return: copy  -  type to search  -  Super+V to paste" \
+        -theme-str 'mainbox { children: [ inputbar, message, listview ]; } element-icon { size: 2em; } listview { lines: 10; }' \
+        2>/dev/null) || { rm -rf "$cache"; return; }
+    [[ $pick =~ ^[0-9]+$ ]] && (( pick < ${#rows[@]} )) && copyq select "${rows[$pick]}" >/dev/null 2>&1
+    rm -rf "$cache"
+}
+
+case "${1:-}" in
+    copy)    if focused_is_terminal; then send ctrl+shift+c; else send ctrl+c; fi ;;
+    cut)     if focused_is_terminal; then send ctrl+shift+c; else send ctrl+x; fi ;;
+    paste)   if focused_is_terminal; then send ctrl+shift+v; else send ctrl+v; fi ;;
+    history) history ;;
+    setup)   setup ;;
+    *) echo "usage: okoko-clip {copy|cut|paste|history|setup}" >&2; exit 1 ;;
+esac
