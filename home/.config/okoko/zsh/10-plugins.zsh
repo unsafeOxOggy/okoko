@@ -1,4 +1,4 @@
-# okoko · plugins from Debian packages (no network plugin manager)
+# okoko - plugins from Debian packages (no network plugin manager)
 _okoko_src() { [[ -r $1 ]] && source "$1"; }
 _okoko_src /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 _okoko_src /usr/share/doc/fzf/examples/key-bindings.zsh

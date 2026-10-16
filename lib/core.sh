@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# okoko — core helpers: logging, prompts, command runner, state paths.
+# okoko - core helpers: logging, prompts, command runner, state paths.
 
 OKOKO_STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
 OKOKO_CONF="${XDG_CONFIG_HOME:-$HOME/.config}/okoko"
@@ -18,12 +18,12 @@ else
 fi
 
 _log()  { printf '%s [%s] %s\n' "$(date +%F\ %T)" "$1" "$2" >>"$OKOKO_LOG"; }
-info()  { printf '%s●%s %s\n' "$C_CYN" "$C_RST" "$*"; _log INFO "$*"; }
-ok()    { printf '%s✔%s %s\n' "$C_GRN" "$C_RST" "$*"; _log OK "$*"; }
-warn()  { printf '%s▲%s %s\n' "$C_YLW" "$C_RST" "$*" >&2; _log WARN "$*"; }
-err()   { printf '%s✖%s %s\n' "$C_RED" "$C_RST" "$*" >&2; _log ERROR "$*"; }
+info()  { printf '%s[*]%s %s\n' "$C_CYN" "$C_RST" "$*"; _log INFO "$*"; }
+ok()    { printf '%s[+]%s %s\n' "$C_GRN" "$C_RST" "$*"; _log OK "$*"; }
+warn()  { printf '%s[!]%s %s\n' "$C_YLW" "$C_RST" "$*" >&2; _log WARN "$*"; }
+err()   { printf '%s[x]%s %s\n' "$C_RED" "$C_RST" "$*" >&2; _log ERROR "$*"; }
 die()   { err "$*"; exit 1; }
-step()  { printf '\n%s%s━━ %s%s\n' "$C_BLD" "$C_CYN" "$*" "$C_RST"; _log STEP "$*"; }
+step()  { printf '\n%s%s== %s%s\n' "$C_BLD" "$C_CYN" "$*" "$C_RST"; _log STEP "$*"; }
 
 has() { command -v "$1" >/dev/null 2>&1; }
 

@@ -1,4 +1,4 @@
-# okoko · dunst — colors in dunstrc.d/90-okoko-colors.conf (generated)
+# okoko - dunst - colors in dunstrc.d/90-okoko-colors.conf (generated)
 [global]
     monitor = 0
     follow = mouse

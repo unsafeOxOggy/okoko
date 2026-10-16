@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# okoko — kvm-autofit integration: the guest screen follows the KVM viewer window
+# okoko - kvm-autofit integration: the guest screen follows the KVM viewer window
 # (boot, greeter, login, fullscreen). Two interchangeable editions:
 #   bash  vendored in extras/kvm-autofit (no build needed)
 #   rs    prebuilt static binary from a kvm-autofit-rs checkout (dir/dist/bin/kvm-autofit)
@@ -9,7 +9,7 @@ AUTOFIT_RS_DIR="${KVM_AUTOFIT_RS_DIR:-$HOME/kvm-autofit-rs}"
 
 autofit_wanted() { [[ "$VIRT" == kvm || "$VIRT" == qemu ]]; }
 
-# autofit_install bash|rs  — needs sudo; falls back to bash if the rust build is missing.
+# autofit_install bash|rs  - needs sudo; falls back to bash if the rust build is missing.
 autofit_install() {
     local mode="${1:-bash}" dir args=()
     [[ "$DRY_RUN" == 1 ]] && args+=(--dry-run)
@@ -17,12 +17,12 @@ autofit_install() {
         if [[ -x "$AUTOFIT_RS_DIR/dist/bin/kvm-autofit" && -f "$AUTOFIT_RS_DIR/install.sh" ]]; then
             dir="$AUTOFIT_RS_DIR"
         else
-            warn "kvm-autofit-rs build not found in $AUTOFIT_RS_DIR (set KVM_AUTOFIT_RS_DIR) — using the bash edition"
+            warn "kvm-autofit-rs build not found in $AUTOFIT_RS_DIR (set KVM_AUTOFIT_RS_DIR) - using the bash edition"
             mode=bash
         fi
     fi
     [[ "$mode" == bash ]] && dir="$AUTOFIT_BASH_DIR"
-    run sudo "$dir/install.sh" "${args[@]}" || { warn "kvm-autofit ($mode) install failed — see $OKOKO_LOG"; return 1; }
+    run sudo "$dir/install.sh" "${args[@]}" || { warn "kvm-autofit ($mode) install failed - see $OKOKO_LOG"; return 1; }
     ok "kvm-autofit ($mode) installed"
 }
 
@@ -30,7 +30,7 @@ autofit_install() {
 autofit_status() {
     local unit=/etc/systemd/system/kvm-autofit.service
     if [[ ! -f $unit ]]; then
-        autofit_wanted && warn "kvm-autofit not installed — screen may not follow the VM window (./install.sh --autofit=bash)"
+        autofit_wanted && warn "kvm-autofit not installed - screen may not follow the VM window (./install.sh --autofit=bash)"
         return 0
     fi
     if grep -q "kvm-autofit watch" "$unit"; then

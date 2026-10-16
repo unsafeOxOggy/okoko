@@ -1,4 +1,4 @@
-# okoko · zsh entry point — the real config lives in ~/.config/okoko/zsh/*.zsh
+# okoko - zsh entry point - the real config lives in ~/.config/okoko/zsh/*.zsh
 # (loaded in name order). Put machine-local tweaks in ~/.zshrc.local.
 
 export STARSHIP_CONFIG="$HOME/.config/okoko/current/starship.toml"

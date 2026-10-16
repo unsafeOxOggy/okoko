@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# okoko — dotfile deployment by symlink, with backups and a manifest for uninstall.
+# okoko - dotfile deployment by symlink, with backups and a manifest for uninstall.
 #
 # Every file under $OKOKO_ROOT/home/ is linked to the same path under $HOME.
 # Existing real files are moved to $OKOKO_STATE/backup/<timestamp>/ first.

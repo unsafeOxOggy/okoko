@@ -1,4 +1,4 @@
-# okoko · sourced by the Debian Xsession (LightDM) before i3 starts,
+# okoko - sourced by the Debian Xsession (LightDM) before i3 starts,
 # so i3 keybindings and exec lines find the okoko-* helpers.
 case ":$PATH:" in
     *":$HOME/.local/bin:"*) ;;

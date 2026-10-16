@@ -1,4 +1,4 @@
-/* okoko · rofi — colors come from the active theme */
+/* okoko - rofi - colors come from the active theme */
 configuration {
     modi: "drun";
     terminal: "kitty";
@@ -47,7 +47,7 @@ prompt {
 entry {
     background-color: @bg-alt;
     padding: 8px 14px;
-    placeholder: "search…";
+    placeholder: "search...";
     placeholder-color: @text-muted;
 }
 textbox { text-color: @text-muted; }

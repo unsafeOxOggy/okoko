@@ -1,4 +1,4 @@
-# okoko · aliases
+# okoko - aliases
 if (( $+commands[eza] )); then
     alias ls='eza --group-directories-first --icons=auto'
     alias ll='eza -lh --group-directories-first --icons=auto --git'

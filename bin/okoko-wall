@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko-wall — wallpaper manager: cycle, restore, or generate a geometric
+# okoko-wall - wallpaper manager: cycle, restore, or generate a geometric
 # wallpaper from the active theme (basic shapes only, no stretching).
 set -uo pipefail
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
@@ -18,7 +18,7 @@ gen_wall() {
     source "$CONF/okoko/current/colors.sh" 2>/dev/null || return 1
     command -v magick >/dev/null || return 1
     local W=1920 H=1080 out="$GEN"
-    # grid of regular hexagons + circles, uniform scale, centered — no scale(x,y)
+    # grid of regular hexagons + circles, uniform scale, centered - no scale(x,y)
     magick -size ${W}x${H} "xc:$BG" \
         -fill "$SURFACE" -draw "circle 320,820 320,760" \
         -fill "$ACCENT"  -draw "circle 1600,260 1600,320" \

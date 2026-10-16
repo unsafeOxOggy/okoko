@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko — installer. Idempotent, backs up existing dotfiles, deploys via symlink.
+# okoko - installer. Idempotent, backs up existing dotfiles, deploys via symlink.
 set -euo pipefail
 OKOKO_ROOT="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 export OKOKO_ROOT
@@ -20,9 +20,9 @@ AUTOFIT="${AUTOFIT:-ask}"
 
 [[ $EUID -eq 0 ]] && die "run as a normal user with sudo, not as root"
 detect_all
-is_debian_like || warn "okoko targets Debian/Kali; '$DISTRO_ID' is untested — continuing"
+is_debian_like || warn "okoko targets Debian/Kali; '$DISTRO_ID' is untested - continuing"
 
-step "okoko installer  ·  $DISTRO_NAME  ·  virt=$VIRT"
+step "okoko installer  -  $DISTRO_NAME  -  virt=$VIRT"
 confirm "Install okoko (backs up any existing dotfiles first)?" y || { info "aborted"; exit; }
 sudo_keepalive
 
@@ -69,7 +69,7 @@ theme_apply "$(theme_current)" --no-reload
 step "5/7  shell"
 if has zsh && [[ "$MINIMAL" != 1 ]] && [[ "$SHELL" != *zsh ]]; then
     if confirm "Make zsh your default shell?" y; then
-        run chsh -s "$(command -v zsh)" && ok "default shell → zsh (effective next login)"
+        run chsh -s "$(command -v zsh)" && ok "default shell -> zsh (effective next login)"
     fi
 fi
 
@@ -91,5 +91,5 @@ cat <<DONE
 ${C_GRN}${C_BLD}okoko installed.${C_RST}
   1. Log out, pick ${C_BLD}i3${C_RST} at the LightDM session menu, log back in.
   2. ${C_BLD}Super+F1${C_RST} shows the keybinding cheat sheet.
-  3. ${C_BLD}Super+Shift+t${C_RST} switches theme · ${C_BLD}okoko doctor${C_RST} checks health.
+  3. ${C_BLD}Super+Shift+t${C_RST} switches theme - ${C_BLD}okoko doctor${C_RST} checks health.
 DONE

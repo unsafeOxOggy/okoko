@@ -8,7 +8,7 @@ Lightweight enough for a KVM/QEMU guest, reproducible from a single `apt`-based
 installer, and built around the way you actually work in a lab: VPN IP and target
 always on the bar, instant theme switching, and a built-in keybinding cheat sheet.
 
-`i3` · `polybar` · `picom` · `kitty` · `rofi` · `dunst` · `zsh + starship`
+`i3` - `polybar` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`
 
 </div>
 
@@ -22,11 +22,11 @@ of configs copied into place. okoko is built on three ideas instead:
 
 1. **One theme engine, many apps.** Colors live in *one* `*.theme` file. A single
    `okoko theme redteam` re-renders i3, polybar, kitty, rofi, dunst, tmux, btop,
-   starship and fzf, then hot-reloads everything — no logout.
+   starship and fzf, then hot-reloads everything - no logout.
 2. **Symlinks, not copies.** `install.sh` backs up your existing dotfiles and
    symlinks okoko's in. `okoko update` pulls and relinks. `okoko uninstall` restores.
 3. **Made for the work.** The bar shows your `tun0` IP and current target; `Super+t`
-   sets the current target and `Super+i` copies your `tun0` IP — both stay visible on the bar.
+   sets the current target and `Super+i` copies your `tun0` IP - both stay visible on the bar.
 
 ## Install
 
@@ -46,7 +46,7 @@ every action without touching your system. In a KVM/QEMU guest the installer off
 ## The `okoko` command
 
 ```
-okoko theme [name]      apply a theme (no name → interactive picker)
+okoko theme [name]      apply a theme (no name -> interactive picker)
 okoko theme --list      list themes
 okoko wallpaper next    cycle wallpaper (or: gen | restore)
 okoko doctor            check the environment, report problems
@@ -62,13 +62,13 @@ okoko uninstall         remove symlinks, restore backups
 
 | Shortcut | Action |
 |---|---|
-| `Super+Return` | terminal · `Super+grave` dropdown · `Super+Shift+Return` floating |
-| `Super+space` | app launcher · `Super+Tab` window switcher |
-| `Super+h/j/k/l` | focus (vim) · `+Shift` move |
-| `Super+1..0` | workspace · `+Shift` move window there |
-| `Super+t` | set target IP · `Super+i` copy VPN IP |
-| `Super+Shift+t` | switch theme · `Super+q` next wallpaper |
-| `Super+x` | power menu · `Super+Escape` lock · `Print` screenshot |
+| `Super+Return` | terminal - `Super+grave` dropdown - `Super+Shift+Return` floating |
+| `Super+space` | app launcher - `Super+Tab` window switcher |
+| `Super+h/j/k/l` | focus (vim) - `+Shift` move |
+| `Super+1..0` | workspace - `+Shift` move window there |
+| `Super+t` | set target IP - `Super+i` copy VPN IP |
+| `Super+Shift+t` | switch theme - `Super+q` next wallpaper |
+| `Super+x` | power menu - `Super+Escape` lock - `Print` screenshot |
 
 ## Themes
 
@@ -82,8 +82,8 @@ okoko uninstall         remove symlinks, restore backups
 | **kanagawa** | [Kanagawa](https://omarchy.gallery/themes/kanagawa) | muted ink-wash (Wave) |
 | **catppuccin-latte** | [Catppuccin Latte](https://omarchy.gallery/themes/catppuccin-latte) | soft **light** theme |
 
-Palettes are checked for WCAG AA contrast on UI text (body ≥ 4.5:1); the ANSI terminal
-ramp (C0–C15) stays faithful to each upstream theme. Tokyo Night, Kanagawa and
+Palettes are checked for WCAG AA contrast on UI text (body >= 4.5:1); the ANSI terminal
+ramp (C0-C15) stays faithful to each upstream theme. Tokyo Night, Kanagawa and
 Catppuccin Latte palettes come from [Omarchy](https://omarchy.gallery).
 Add your own: drop a `themes/mytheme.theme` (copy an existing one) and run `okoko theme mytheme`.
 
@@ -99,16 +99,16 @@ okoko theme mytheme
 
 ```
 okoko
-├── okoko                 # the CLI (theme/doctor/update/…)
-├── install.sh            # idempotent installer (symlink + backup)
-├── lib/                  # core.sh · detect.sh · theme.sh · link.sh · autofit.sh
-├── bin/                  # okoko-session · okoko-bar · okoko-menu · okoko-wall · okoko-lock · okoko-dropdown
-├── templates/            # one file per app, with {{COLOR}} placeholders
-├── themes/               # *.theme palettes
-├── home/                 # dotfiles, symlinked into ~ (i3 split into config.d/, zsh split into okoko/zsh/)
-├── extras/kvm-autofit/    # vendored bash edition of kvm-autofit
-├── wallpapers/
-└── tests/                # bats smoke tests (+ shellcheck in CI)
+|-- okoko                 # the CLI (theme/doctor/update/...)
+|-- install.sh            # idempotent installer (symlink + backup)
+|-- lib/                  # core.sh - detect.sh - theme.sh - link.sh - autofit.sh
+|-- bin/                  # okoko-session - okoko-bar - okoko-menu - okoko-wall - okoko-lock - okoko-dropdown
+|-- templates/            # one file per app, with {{COLOR}} placeholders
+|-- themes/               # *.theme palettes
+|-- home/                 # dotfiles, symlinked into ~ (i3 split into config.d/, zsh split into okoko/zsh/)
+|-- extras/kvm-autofit/    # vendored bash edition of kvm-autofit
+|-- wallpapers/
+`-- tests/                # bats smoke tests (+ shellcheck in CI)
 ```
 
 ## Notes
@@ -124,11 +124,11 @@ okoko
   size the host asks for on every X display, greeter included. The bash edition is
   vendored here; `okoko autofit rs` uses a `kvm-autofit-rs` checkout found in
   `~/kvm-autofit-rs` (or `$KVM_AUTOFIT_RS_DIR`) and falls back to bash otherwise.
-  In virt-manager keep *View → Scale Display → Auto resize VM with window* on.
+  In virt-manager keep *View -> Scale Display -> Auto resize VM with window* on.
 - **Nothing runs `curl | sh`**: zsh plugins come from Debian packages; the Nerd
   Font is only fetched if `fonts-jetbrains-mono` isn't available.
 - The target/VPN helpers keep your `tun0` IP and current engagement target
-  visible on the bar and in the prompt — handy on a lab VM you own and snapshot.
+  visible on the bar and in the prompt - handy on a lab VM you own and snapshot.
 
 ## Credits
 

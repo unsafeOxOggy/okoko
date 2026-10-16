@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko-lock — themed lock screen (i3lock-color if present, else i3lock).
+# okoko-lock - themed lock screen (i3lock-color if present, else i3lock).
 set -uo pipefail
 source "${XDG_CONFIG_HOME:-$HOME/.config}/okoko/current/colors.sh" 2>/dev/null
 hex() { printf '%s' "${1#\#}"; }

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko — single entry point. Theme, update, doctor, bar, wallpaper, uninstall.
+# okoko - single entry point. Theme, update, doctor, bar, wallpaper, uninstall.
 set -euo pipefail
 OKOKO_ROOT="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 export OKOKO_ROOT
@@ -12,7 +12,7 @@ source "$OKOKO_ROOT/lib/autofit.sh"
 
 usage() {
 cat <<USAGE
-${C_BLD}okoko${C_RST} — modular i3 rice for offensive VMs
+${C_BLD}okoko${C_RST} - modular i3 rice for offensive VMs
 
   okoko theme [name]        apply a theme (no name = interactive picker)
   okoko theme --list        list available themes
@@ -53,8 +53,8 @@ cmd_doctor() {
     (( ${#miss[@]} )) && warn "missing commands: ${miss[*]}" || ok "core commands present"
     for c in starship zoxide fzf eza batcat btop; do has "$c" || warn "optional missing: $c"; done
     fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd" || warn "JetBrainsMono Nerd Font not found"
-    [[ -f "$OKOKO_GEN/colors.sh" ]] && ok "theme rendered" || warn "theme not rendered yet — run: okoko theme"
-    if [[ -L "$HOME/.config/i3/config" ]]; then ok "dotfiles linked"; else warn "dotfiles not linked — run: okoko link"; fi
+    [[ -f "$OKOKO_GEN/colors.sh" ]] && ok "theme rendered" || warn "theme not rendered yet - run: okoko theme"
+    if [[ -L "$HOME/.config/i3/config" ]]; then ok "dotfiles linked"; else warn "dotfiles not linked - run: okoko link"; fi
     autofit_status
     [[ -n "${DISPLAY:-}" ]] && { has i3 && i3 -C -c "$HOME/.config/i3/config" >/dev/null 2>&1 && ok "i3 config valid" || warn "i3 config check failed (or no X)"; }
 }
@@ -72,7 +72,7 @@ cmd_uninstall() {
     step "okoko uninstall"
     confirm "Remove all okoko symlinks and restore backups?" n || { info "cancelled"; exit; }
     unlink_all; restore_latest_backup
-    ok "done — your previous dotfiles (if any) are back"
+    ok "done - your previous dotfiles (if any) are back"
 }
 
 [[ "${1:-}" == -h || "${1:-}" == --help || $# -eq 0 ]] && { usage; exit 0; }

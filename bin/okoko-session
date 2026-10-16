@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko-session — idempotent autostart, safe to run on every i3 (re)start.
+# okoko-session - idempotent autostart, safe to run on every i3 (re)start.
 set -uo pipefail
 export PATH="$HOME/.local/bin:$PATH"
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
@@ -12,7 +12,7 @@ once() { local name="$1"; shift; pgrep -x "$name" >/dev/null || "$@" & }
 # 1. make sure a theme has been rendered at least once
 [[ -f "$CONF/okoko/current/colors.sh" ]] || okoko theme "$(cat "$STATE/theme" 2>/dev/null || echo okoko)" --no-reload
 
-# 2. compositor — backend chosen by hardware
+# 2. compositor - backend chosen by hardware
 backend=xrender
 if command -v glxinfo >/dev/null && [[ -n "${DISPLAY:-}" ]]; then
     r=$(timeout 3 glxinfo -B 2>/dev/null | awk -F': ' '/OpenGL renderer/{print $2}')

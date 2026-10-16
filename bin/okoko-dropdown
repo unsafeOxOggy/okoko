@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko-dropdown — toggle a Quake-style dropdown terminal via the scratchpad.
+# okoko-dropdown - toggle a Quake-style dropdown terminal via the scratchpad.
 set -uo pipefail
 if ! pgrep -af 'kitty --class okoko-dropdown' >/dev/null 2>&1; then
     kitty --class okoko-dropdown >/dev/null 2>&1 & disown

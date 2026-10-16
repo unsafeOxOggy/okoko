@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# okoko — theme engine.
+# okoko - theme engine.
 #
 # A theme (themes/<name>.theme) is a list of shell color variables.
 # Every templates/<file> is rendered by replacing {{VAR}} with "#RRGGBB" and

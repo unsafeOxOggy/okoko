@@ -1,5 +1,5 @@
 # shellcheck shell=bash
-# okoko — environment detection (distro, hypervisor, renderer).
+# okoko - environment detection (distro, hypervisor, renderer).
 
 detect_distro() {
     # shellcheck disable=SC1091

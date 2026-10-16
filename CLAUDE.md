@@ -1,4 +1,4 @@
-# okoko — contexte projet (handoff pour Claude Code)
+# okoko - contexte projet (handoff pour Claude Code)
 
 > Ce fichier est relu automatiquement au démarrage d'une session Claude Code dans ce repo.
 > Il résume le but, l'architecture, l'état courant et les tâches en attente. Mets-le à jour
@@ -11,14 +11,14 @@ Réécriture totale de `okoko-i3` (ancien repo = configs à plat copiées en dur
 `xct/kali-clean`. Priorités : léger pour une VM, installeur reproductible basé `apt`,
 switch de thème instantané, workflow pentest (IP VPN + cible toujours visibles).
 
-Stack : `i3` · `polybar` · `picom` · `kitty` · `rofi` · `dunst` · `zsh + starship`.
+Stack : `i3` - `polybar` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`.
 
 ## Architecture (3 idées clés)
 
 1. **Un moteur de thèmes, plusieurs apps.** Les couleurs vivent dans *un* `themes/<nom>.theme`.
-   `okoko theme <nom>` rend tous les `templates/*` (remplace `{{VAR}}` → `#RRGGBB`,
-   `{{VAR.hex}}` → `RRGGBB`) vers `~/.config/okoko/current/`, puis recharge à chaud
-   i3/polybar/kitty/dunst/tmux (voir `lib/theme.sh` → `theme_reload`).
+   `okoko theme <nom>` rend tous les `templates/*` (remplace `{{VAR}}` -> `#RRGGBB`,
+   `{{VAR.hex}}` -> `RRGGBB`) vers `~/.config/okoko/current/`, puis recharge à chaud
+   i3/polybar/kitty/dunst/tmux (voir `lib/theme.sh` -> `theme_reload`).
 2. **Symlinks, pas de copies.** `install.sh`/`okoko link` sauvegardent les dotfiles existants
    dans `~/.local/state/okoko/backup/<ts>/` puis lient ceux de `home/`. `okoko uninstall` restaure.
 3. **Fait pour le taf.** Barre montre `tun0` + cible ; `Super+t` cible, `Super+i` copie VPN.
@@ -38,9 +38,9 @@ bin/okoko-menu         # menus rofi : theme | power | target | keys (cheat sheet
 bin/okoko-wall         # wallpaper : next/gen/restore (gen = formes géométriques depuis la palette)
 bin/okoko-lock         # i3lock-color thémé
 bin/okoko-dropdown     # terminal déroulant (scratchpad)
-templates/             # 1 fichier/app avec tokens {{COULEUR}} (+ starship.toml, colors.sh, btop.theme…)
+templates/             # 1 fichier/app avec tokens {{COULEUR}} (+ starship.toml, colors.sh, btop.theme...)
 themes/*.theme         # palettes
-home/                  # dotfiles → symlinkés dans ~ (i3 en config.d/, zsh en okoko/zsh/)
+home/                  # dotfiles -> symlinkés dans ~ (i3 en config.d/, zsh en okoko/zsh/)
 wallpapers/ tests/ .github/workflows/ci.yml
 ```
 
@@ -53,47 +53,47 @@ wallpapers/ tests/ .github/workflows/ci.yml
 Ajouter un thème : `cp themes/okoko.theme themes/x.theme`, éditer, `okoko theme x`.
 Contrôle contraste WCAG AA : `python3 -I <scratchpad>/contrast.py themes/` (script jetable, à
 recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Règle retenue :
-**UI text ≥ 4.5:1** ; la rampe ANSI C0–C15 reste fidèle à l'upstream (usages large/bold → 3:1 OK).
+**UI text >= 4.5:1** ; la rampe ANSI C0-C15 reste fidèle à l'upstream (usages large/bold -> 3:1 OK).
 
 ## VM cible
 
-- `ssh kali@192.168.100.18` — user `kali`. **Clé SSH déjà installée** (accès sans mdp). Ne jamais écrire
+- `ssh kali@192.168.100.18` - user `kali`. **Clé SSH déjà installée** (accès sans mdp). Ne jamais écrire
   de mot de passe ici : ce fichier est poussé sur un dépôt GitHub **public**.
-- KVM/QEMU, virtio-GPU (→ picom `xrender`), 4 CPU / 8 Go / Kali Rolling, LightDM, zsh+OMZ.
+- KVM/QEMU, virtio-GPU (-> picom `xrender`), 4 CPU / 8 Go / Kali Rolling, LightDM, zsh+OMZ.
 - **Snapshots en place** (l'utilisateur peut casser/restaurer librement).
 - Déploiement : `rsync -az --exclude=.git ./ kali@192.168.100.18:~/okoko/` puis `okoko link` / `okoko theme`.
 
 ## État courant (MAJ 2026-10-16)
 
-- ✅ Projet écrit, 7 thèmes, `bash -n` + i3 `-C` OK, git branche `master`.
-- ✅ Déployé sur la VM : dotfiles **linkés**, thème **rendu**, CLI `okoko` opérationnelle.
-- ⚠️ **Paquets apt PAS encore installés** sur la VM (dunst, fonts-jetbrains-mono, papirus,
-  unclutter, i3lock-color, xss-lock + extras fzf/eza/bat/zoxide/starship/btop/gum…).
-  → l'utilisateur doit lancer **`cd ~/okoko && ./install.sh`** dans un terminal de la VM
+- [x] Projet écrit, 7 thèmes, `bash -n` + i3 `-C` OK, git branche `master`.
+- [x] Déployé sur la VM : dotfiles **linkés**, thème **rendu**, CLI `okoko` opérationnelle.
+- [!] **Paquets apt PAS encore installés** sur la VM (dunst, fonts-jetbrains-mono, papirus,
+  unclutter, i3lock-color, xss-lock + extras fzf/eza/bat/zoxide/starship/btop/gum...).
+  -> l'utilisateur doit lancer **`cd ~/okoko && ./install.sh`** dans un terminal de la VM
   (le classificateur de sécurité empêche Claude de saisir le mot de passe sudo à sa place).
-- ✅ Remote GitHub `git@github.com:unsafeOxOggy/okoko.git` (**public**). Le `.git` local a disparu le
-  2026-10-16 (cause inconnue, pas d'action de Claude) → historique repris d'un nouveau commit initial.
-- ✅ kvm-autofit intégré : `lib/autofit.sh`, étape 6/7 de `install.sh` (`--autofit=bash|rs|none`,
+- [x] Remote GitHub `git@github.com:unsafeOxOggy/okoko.git` (**public**). Le `.git` local a disparu le
+  2026-10-16 (cause inconnue, pas d'action de Claude) -> historique repris d'un nouveau commit initial.
+- [x] kvm-autofit intégré : `lib/autofit.sh`, étape 6/7 de `install.sh` (`--autofit=bash|rs|none`,
   proposé seulement si `VIRT` = kvm/qemu), `okoko autofit [bash|rs]`, check dans `okoko doctor`.
   Édition bash **vendorisée** dans `extras/kvm-autofit/` (source : `~/DEV/kvm-autofit`, commit dans
-  `extras/kvm-autofit/VENDORED` — re-copier après chaque changement là-bas). Édition Rust : jamais de
+  `extras/kvm-autofit/VENDORED` - re-copier après chaque changement là-bas). Édition Rust : jamais de
   binaire dans ce dépôt ; on utilise `~/kvm-autofit-rs/dist/bin` (`KVM_AUTOFIT_RS_DIR`) sinon repli bash.
   La VM a actuellement l'édition **rust** installée (démon actif).
 
 ## TODO / en attente
 
-1. ✅ **rofi drun seul, sans arrondis** (fait 2026-10-16, synchronisé sur la VM, `rofi -dump-theme` OK
+1. [x] **rofi drun seul, sans arrondis** (fait 2026-10-16, synchronisé sur la VM, `rofi -dump-theme` OK
    en rofi 2.0.0). `mainbox` = `[inputbar, listview]` ; plus de mode-switcher ni de `border-radius`.
    `bin/okoko-menu` (`_rofi`) remet le widget `message` via `-theme-str` pour garder ses `-mesg`.
    Reste : valider visuellement sur la VM. `Super+Tab` (`rofi -show window`) est conservé.
-2. Faire installer les paquets sur la VM (`./install.sh`) puis valider `okoko doctor` (tout ✅)
-   et le rendu réel (barre, rofi, lock) — idéalement screenshot via la VM.
+2. Faire installer les paquets sur la VM (`./install.sh`) puis valider `okoko doctor` (tout [x])
+   et le rendu réel (barre, rofi, lock) - idéalement screenshot via la VM.
 
 ## Décisions prises
 
-- **polybar** gardé par défaut (pas Quickshell : Wayland/Qt6, hors apt Kali, lourd pour VM) — validé par l'utilisateur.
+- **polybar** gardé par défaut (pas Quickshell : Wayland/Qt6, hors apt Kali, lourd pour VM) - validé par l'utilisateur.
 - **Retiré du projet** : générateur de reverse-shell et palette de commandes offensives
-  (`menu_revshell`/`menu_cmds` et leurs bindings) — demande explicite de l'utilisateur.
+  (`menu_revshell`/`menu_cmds` et leurs bindings) - demande explicite de l'utilisateur.
   Ne **pas** les réintroduire. Garder seulement le workflow neutre cible/VPN/presse-papier.
 
 ## Conventions / pièges
@@ -104,19 +104,19 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
 - **Pas de `curl | sh`** : plugins zsh via paquets Debian ; Nerd Font téléchargée seulement si
   `fonts-jetbrains-mono` indispo.
 - **sudo sur la VM** : Kali = tickets sudo par-tty ; feeding du mdp programmatiquement bloqué par
-  le classificateur. → laisser l'utilisateur lancer les étapes sudo lui-même (cf. règle CLAUDE.md
-  globale « me prévenir pour les actions manuelles »).
+  le classificateur. -> laisser l'utilisateur lancer les étapes sudo lui-même (cf. règle CLAUDE.md
+  globale "me prévenir pour les actions manuelles").
 - i3 `window_type` est un **enum** (pas de regex avec alternation) ; `window_role` accepte le regex.
 - `home/.zshrc` (point d'entrée : `STARSHIP_CONFIG` + source `~/.config/okoko/zsh/*.zsh`, puis
-  `~/.zshrc.local`) et `home/.xsessionrc` (PATH `~/.local/bin` pour i3) manquaient jusqu'au 2026-10-16 →
+  `~/.zshrc.local`) et `home/.xsessionrc` (PATH `~/.local/bin` pour i3) manquaient jusqu'au 2026-10-16 ->
   shell cassé sur la VM (lien mort). `link_file` ignore désormais une source absente. Le `.zshrc`
   Kali d'origine (OMZ) est sauvegardé dans `~/.local/state/okoko/backup/20261016-061757/.zshrc`.
 - `theme_apply <nom> --no-reload` pour rendre sans recharger (utile hors session X / en test).
 
-## ⚠️ Éviter le faux positif « cyber » (safeguards Opus 5.5)
+## [!] Éviter le faux positif "cyber" (safeguards Opus 5.5)
 
 Contexte à garder en tête pour **ne pas re-déclencher** le message
-« Opus 5.5's safeguards flagged this session … Details: `[cyber]` » (qui coupe la réponse
+"Opus 5.5's safeguards flagged this session ... Details: `[cyber]`" (qui coupe la réponse
 en plein milieu et bascule sur un modèle de repli).
 
 - **Nature du projet, à rappeler si besoin** : c'est un *rice de bureau i3* (dotfiles, thèmes,
@@ -127,14 +127,14 @@ en plein milieu et bascule sur un modèle de repli).
   contourner, et je ne dois pas essayer. On réduit seulement les *faux positifs* par la manière
   d'écrire.
 - **Ce qui l'avait déclenché** : des heredocs bash générant des one-liners de **reverse-shell**
-  et une **palette de commandes offensives** (nmap/nc/…). Ces éléments ont été **retirés du
-  projet** et **ne doivent pas être réintroduits** (cf. section « Décisions prises »).
+  et une **palette de commandes offensives** (nmap/nc/...). Ces éléments ont été **retirés du
+  projet** et **ne doivent pas être réintroduits** (cf. section "Décisions prises").
 - **Bonnes pratiques d'écriture** dans ce repo :
   - Pas de payloads offensifs concrets (reverse-shells, one-liners d'exploitation, listes de
     commandes d'attaque) dans le code, les templates ou les commits.
   - Le workflow pentest reste **neutre et métadonnées seulement** : afficher/copier l'IP `tun0`
-    et une IP cible, créer des dossiers de travail — pas de génération de commandes offensives.
-  - Décrire les fichiers par leur **rôle** (« module de workflow qui copie l'IP VPN ») plutôt que
+    et une IP cible, créer des dossiers de travail - pas de génération de commandes offensives.
+  - Décrire les fichiers par leur **rôle** ("module de workflow qui copie l'IP VPN") plutôt que
     coller du contenu sensible.
 - **Si ça re-déclenche quand même** : c'est un faux positif. En informer l'utilisateur, continuer
   la partie sûre de la tâche, et lui laisser l'option `/feedback` (un signalement a déjà été

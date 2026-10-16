@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko-bar — launch polybar on every monitor, and serve the custom modules.
+# okoko-bar - launch polybar on every monitor, and serve the custom modules.
 set -uo pipefail
 CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"

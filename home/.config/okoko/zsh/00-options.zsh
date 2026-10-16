@@ -1,4 +1,4 @@
-# okoko · history, options, completion, keybindings
+# okoko - history, options, completion, keybindings
 typeset -U path
 path=(~/.local/bin $path)
 HISTFILE=~/.zsh_history
