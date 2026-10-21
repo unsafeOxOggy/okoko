@@ -8,7 +8,7 @@ Lightweight enough for a KVM/QEMU guest, reproducible from a single `apt`-based
 installer, and built around the way you actually work in a lab: VPN IP and target
 always on the bar, instant theme switching, and a built-in keybinding cheat sheet.
 
-`i3` - `polybar` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`
+`i3` - `i3bar + i3blocks` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`
 
 </div>
 
@@ -21,7 +21,7 @@ This is a ground-up rewrite of my earlier `okoko-i3`, inspired by
 of configs copied into place. okoko is built on three ideas instead:
 
 1. **One theme engine, many apps.** Colors live in *one* `*.theme` file. A single
-   `okoko theme redteam` re-renders i3, polybar, kitty, rofi, dunst, tmux, btop,
+   `okoko theme redteam` re-renders i3, kitty, rofi, dunst, tmux, btop,
    starship and fzf, then hot-reloads everything - no logout.
 2. **Symlinks, not copies.** `install.sh` backs up your existing dotfiles and
    symlinks okoko's in. `okoko update` pulls and relinks. `okoko uninstall` restores.
@@ -126,13 +126,13 @@ okoko
   vendored here; `okoko autofit rs` uses a `kvm-autofit-rs` checkout found in
   `~/kvm-autofit-rs` (or `$KVM_AUTOFIT_RS_DIR`) and falls back to bash otherwise.
   In virt-manager keep *View -> Scale Display -> Auto resize VM with window* on.
-- **The bar is a row of "islands"** in the style of
-  [waybar-themes V2.2](https://github.com/HANCORE-linux/waybar-themes) (HANCORE-linux),
-  ported from Waybar/Hyprland to polybar/i3: icons, workspaces 1-5 (always shown, as
-  boxes), window title, and "value + icon" status (VPN IP, target, CPU, RAM, date),
-  each framed by a 2px rounded border over a transparent strip. Polybar cannot frame a
-  group of modules, so each island is its own small bar (`okoko-bar launch` starts them)
-  and i3 keeps the top strip free with `gaps top`.
+- **The bar is the one of [xct/kali-clean](https://github.com/xct/kali-clean)**:
+  i3bar + i3blocks, transparent, with xct's colors and icons. Blocks: target (left
+  click copies, right click edits), CPU, RAM, free disk, traffic, VPN IP (hidden when
+  down, left click copies) and the full date. Kali's i3blocks no longer ships the
+  scripts xct's config calls, so each block is an inline command
+  (`~/.config/i3/i3blocks.conf`); the bar is set in `config.d/50-bar.conf` and keeps
+  its own colors whatever the theme. i3bar follows screen size changes by itself.
 - **Universal clipboard + history** (after the
   [Omarchy manual](https://learn.omacom.io/2/the-omarchy-manual/105/universal-clipboard-history)):
   `Super+C` / `Super+X` / `Super+V` copy, cut and paste everywhere (`okoko-clip` sends

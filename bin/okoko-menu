@@ -32,7 +32,7 @@ menu_target() {
     ip=$(_rofi -p "target" -mesg "current: ${cur:-none}  -  empty = clear") || return
     mkdir -p "$STATE"
     printf '%s\n' "$ip" >"$STATE/target"
-    pgrep -x polybar >/dev/null && polybar-msg action "#target.hook.0" 2>/dev/null
+    pkill -RTMIN+1 -x i3blocks 2>/dev/null   # refresh the target block
     [[ -n $ip ]] && notify-send "okoko" "target -> $ip" 2>/dev/null
 }
 

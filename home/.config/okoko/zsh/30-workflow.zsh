@@ -1,5 +1,5 @@
 # okoko - pentest-lab workflow helpers for an authorized testing VM.
-# The target IP and VPN IP are shared with polybar / tmux / the prompt through
+# The target IP and VPN IP are shared with the bar / tmux / the prompt through
 # small state files under ~/.local/state/okoko so every component stays in sync.
 
 OKOKO_STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
@@ -13,7 +13,7 @@ tgt() {
         clear|-) : >"$f"; echo "target cleared" ;;
         *)       printf '%s\n' "$1" >"$f"; export OKOKO_TARGET="$1"; echo "target -> $1" ;;
     esac
-    pgrep -x polybar >/dev/null && polybar-msg action "#target.hook.0" 2>/dev/null
+    pkill -RTMIN+1 -x i3blocks 2>/dev/null   # refresh the target block
 }
 
 # Expose VPN/target to the prompt before each command.

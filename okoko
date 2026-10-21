@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# okoko - single entry point. Theme, update, doctor, bar, wallpaper, uninstall.
+# okoko - single entry point. Theme, update, doctor, wallpaper, uninstall.
 set -euo pipefail
 OKOKO_ROOT="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
 export OKOKO_ROOT
@@ -17,7 +17,6 @@ ${C_BLD}okoko${C_RST} - modular i3 rice for offensive VMs
   okoko theme [name]        apply a theme (no name = interactive picker)
   okoko theme --list        list available themes
   okoko wallpaper {next|gen|restore}
-  okoko bar                 relaunch polybar
   okoko doctor              check the environment and report problems
   okoko autofit [bash|rs]   install kvm-autofit (screen follows the KVM window)
   okoko link                (re)deploy dotfiles as symlinks
@@ -47,7 +46,7 @@ cmd_doctor() {
     info "theme:      $(theme_current)"
     info "picom:      backend=$PICOM_BACKEND"
     local miss=() c
-    for c in i3 polybar picom kitty rofi feh flameshot dunst xclip; do
+    for c in i3 i3blocks picom kitty rofi feh flameshot dunst xclip; do
         has "$c" || miss+=("$c")
     done
     (( ${#miss[@]} )) && warn "missing commands: ${miss[*]}" || ok "core commands present"
@@ -84,7 +83,6 @@ cmd="$1"; shift || true
 case "$cmd" in
     theme)     cmd_theme "$@" ;;
     wallpaper|wall) okoko-wall "${1:-restore}" ;;
-    bar)       okoko-bar launch ;;
     doctor)    cmd_doctor ;;
     autofit)   detect_all; case "${1:-bash}" in bash|rs) sudo_keepalive; autofit_install "${1:-bash}" ;; *) die "usage: okoko autofit [bash|rs]" ;; esac ;;
     link)      BACKUP_STAMP=$(date +%Y%m%d-%H%M%S); link_bin; link_tree ".config"; for f in .zshrc .xsessionrc; do link_file "$OKOKO_ROOT/home/$f" "$HOME/$f"; done; ok "linked" ;;

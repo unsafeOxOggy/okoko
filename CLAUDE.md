@@ -11,14 +11,14 @@ Réécriture totale de `okoko-i3` (ancien repo = configs à plat copiées en dur
 `xct/kali-clean`. Priorités : léger pour une VM, installeur reproductible basé `apt`,
 switch de thème instantané, workflow pentest (IP VPN + cible toujours visibles).
 
-Stack : `i3` - `polybar` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`.
+Stack : `i3` - `i3bar + i3blocks` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`.
 
 ## Architecture (3 idées clés)
 
 1. **Un moteur de thèmes, plusieurs apps.** Les couleurs vivent dans *un* `themes/<nom>.theme`.
    `okoko theme <nom>` rend tous les `templates/*` (remplace `{{VAR}}` -> `#RRGGBB`,
    `{{VAR.hex}}` -> `RRGGBB`) vers `~/.config/okoko/current/`, puis recharge à chaud
-   i3/polybar/kitty/dunst/tmux (voir `lib/theme.sh` -> `theme_reload`).
+   i3/kitty/dunst/tmux (voir `lib/theme.sh` -> `theme_reload`).
 2. **Symlinks, pas de copies.** `install.sh`/`okoko link` sauvegardent les dotfiles existants
    dans `~/.local/state/okoko/backup/<ts>/` puis lient ceux de `home/`. `okoko uninstall` restaure.
 3. **Fait pour le taf.** Barre montre `tun0` + cible ; `Super+t` cible, `Super+i` copie VPN.
@@ -26,14 +26,14 @@ Stack : `i3` - `polybar` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starshi
 ## Layout
 
 ```
-okoko                  # CLI principale (theme/doctor/link/update/uninstall/wallpaper/bar)
+okoko                  # CLI principale (theme/doctor/link/update/uninstall/wallpaper/autofit)
 install.sh             # installeur idempotent (apt + font + symlinks + chsh), flags --dry-run --minimal --yes
 lib/core.sh            # log, prompts (gum si dispo), run/spin, apt_install, sudo_keepalive
 lib/detect.sh          # distro, virt (systemd-detect-virt), backend picom (xrender en VM / glx sinon)
 lib/theme.sh           # moteur de thèmes : THEME_VARS, THEME_TARGETS, theme_apply/reload
 lib/link.sh            # symlinks + backup + manifest (~/.local/state/okoko/manifest) + restore
-bin/okoko-session      # autostart idempotent (exec_always depuis i3) : picom, bar, wall, dunst, agent VM
-bin/okoko-bar          # lance les îlots polybar sur chaque écran + modules vpn/target/workspaces
+bin/okoko-session      # autostart idempotent (exec_always depuis i3) : picom, wall, dunst, agent VM
+bin/okoko-bar          # valeurs vpn/target pour les blocs i3blocks, tmux et le prompt
 bin/okoko-menu         # menus rofi : theme | power | target | keys (cheat sheet générée)
 bin/okoko-wall         # wallpaper : next/gen/restore (gen = formes géométriques depuis la palette)
 bin/okoko-dropdown     # terminal déroulant (scratchpad)
@@ -90,7 +90,8 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
 
 ## Décisions prises
 
-- **polybar** gardé par défaut (pas Quickshell : Wayland/Qt6, hors apt Kali, lourd pour VM) - validé par l'utilisateur.
+- **Barre = i3bar + i3blocks** comme kali-clean de xct, avec ses couleurs (2026-10-21, demandé par
+  l'utilisateur ; remplace les îlots polybar). Pas de Quickshell (Wayland/Qt6, hors apt Kali).
 - **Retiré du projet** : générateur de reverse-shell et palette de commandes offensives
   (`menu_revshell`/`menu_cmds` et leurs bindings) - demande explicite de l'utilisateur.
   Ne **pas** les réintroduire. Garder seulement le workflow neutre cible/VPN/presse-papier.
@@ -104,20 +105,15 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
   (le paquet Debian `fonts-jetbrains-mono` est la police *sans* icônes) : install.sh étape 2 la
   télécharge depuis la release Nerd Fonts épinglée (`NERD_VER`) et vérifie `NERD_SHA256`.
   Bug corrigé le 2026-10-16 : l'ancien test sur le paquet Debian sautait le téléchargement
-  -> plus aucune icône dans polybar.
-- **Barre "îlots"** (2026-10-16, demandé par l'utilisateur) : style waybar-themes V2.2 porté
-  sur polybar. 4 barres `override-redirect` (icons, workspaces, title, status) lancées par
-  `okoko-bar launch`, bordure 2px `colors.border` (FG 80%), fond `colors.background` (BG 90%),
-  radius 4. Largeurs fixes (polybar ne s'auto-dimensionne pas) ; i3 réserve la place avec
-  `gaps top 36` (pas de `smart_gaps`, sinon fenêtres sous la barre). Workspaces = script
-  `okoko-bar workspaces` (python3, abonnement i3) : 1-5 toujours affichés, au-delà une 6e case
-  partagée ; seuls des numéros sont imprimés (pas d'injection de tags polybar). Couleurs des
-  cases : actif FG/BG, occupé MUTED/BG, vide SURFACE/FG, urgent URGENT + texte le plus
-  contrasté (contrastes >= 4.5:1 vérifiés sur les 7 thèmes).
-  **Resize** : `screenchange-reload` de polybar laisse les îlots vides après un changement de taille
-  -> désactivé ; `okoko-bar watch` (lancé par okoko-session, verrou flock = 1 seul par session)
-  s'abonne aux événements `output` d'i3, regroupe la rafale (1 s) puis relance les îlots et
-  `okoko-wall restore`. Testé : 1920x982 <-> 1920x1080 <-> 1280x1024.
+  -> plus aucune icône dans la barre.
+- **Barre** (2026-10-21) : i3bar + i3blocks (`config.d/50-bar.conf`, `~/.config/i3/i3blocks.conf`),
+  copie de kali-clean (xct) : couleurs `#1C1D2B88` / `#282A3E88` / `#E6FFF5`, tun0 `#3BB92D`, mêmes
+  icônes. Le paquet i3blocks 1.5 de Kali ne fournit plus `/usr/share/i3blocks/*` : chaque bloc est une
+  commande en ligne. Bloc cible : `signal=1`, rafraîchi par `pkill -RTMIN+1 -x i3blocks` (okoko-menu,
+  `tgt`) ; clics via `$button`. `markup=none` : la cible saisie ne peut pas injecter de balises.
+  i3bar suit seul les changements de taille : plus de `okoko-bar watch` ni de `gaps top`.
+  Historique : îlots polybar (style waybar-themes V2.2) du 2026-10-16 au 2026-10-21 ; picom
+  `use-damage = false` vient de là (xrender oubliait l'îlot statique d'icônes).
 - **Délai au lancement** (2026-10-16) : kitty met ~1,9 s à démarrer dans la VM (Python + OpenGL virgl,
   même sans config ; zsh = 0,1 s, starship = 8 ms). => `$term = kitty -1 --instance-group okoko` +
   instance cachée pré-lancée par okoko-session (`pgrep -f '^kitty -1 ...'`, ancré : un `-f` non ancré

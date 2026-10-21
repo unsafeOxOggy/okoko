@@ -11,7 +11,6 @@ THEME_VARS=(BG BG_ALT SURFACE ACCENT ACCENT2 FG MUTED URGENT WARN
 # template -> destination
 declare -gA THEME_TARGETS=(   # -g: stays global even when sourced from a function (bats setup)
     [i3-colors.conf]="$OKOKO_GEN/i3-colors.conf"
-    [polybar-colors.ini]="$OKOKO_GEN/polybar-colors.ini"
     [kitty-theme.conf]="$OKOKO_GEN/kitty-theme.conf"
     [rofi-colors.rasi]="$OKOKO_GEN/rofi-colors.rasi"
     [tmux-theme.conf]="$OKOKO_GEN/tmux-theme.conf"
@@ -71,7 +70,6 @@ theme_apply() {    # theme_apply <name> [--no-reload]
 theme_reload() {
     [[ "$DRY_RUN" == 1 ]] && return
     pgrep -x i3 >/dev/null && i3-msg -q reload
-    pgrep -x polybar >/dev/null && "$HOME/.local/bin/okoko-bar" launch >/dev/null 2>&1 &
     pkill -USR1 -x kitty 2>/dev/null || true
     pgrep -x dunst >/dev/null && { has dunstctl && dunstctl reload 2>/dev/null || pkill -x dunst; }
     pgrep -x tmux >/dev/null && tmux source-file "$HOME/.config/tmux/tmux.conf" 2>/dev/null

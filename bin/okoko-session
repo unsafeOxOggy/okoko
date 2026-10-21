@@ -25,15 +25,15 @@ for _ in $(seq 1 30); do pgrep -x picom >/dev/null || break; sleep 0.1; done
 pkill -9 -x picom 2>/dev/null
 picom --backend "$backend" --config "$CONF/picom/picom.conf" & disown
 
-# 3. wallpaper, notifications, bar
+# 3. wallpaper, notifications, clipboard, terminal
 okoko-wall restore
 once dunst dunst
 # clipboard history (CopyQ, hidden) for okoko-clip / Super+Ctrl+V
 command -v copyq >/dev/null && { okoko-clip setup >/dev/null 2>&1 & disown; }
 # hidden kitty instance: every terminal ($term = kitty -1) then opens instantly
 pgrep -f '^kitty -1 --instance-group okoko( |$)' >/dev/null || { kitty -1 --instance-group okoko --start-as=hidden >/dev/null 2>&1 & disown; }
-okoko-bar launch
-okoko-bar watch </dev/null >/dev/null 2>&1 & disown   # relaunch bar on screen resize
+# the bar is i3bar + i3blocks (i3 starts it); stop the polybar of older okoko versions
+pkill -f 'okoko-bar watch' 2>/dev/null; pkill -x polybar 2>/dev/null
 
 # 4. VM guest integration (clipboard / resolution)
 if systemd-detect-virt --vm --quiet 2>/dev/null; then
