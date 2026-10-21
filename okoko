@@ -51,7 +51,7 @@ cmd_doctor() {
     done
     (( ${#miss[@]} )) && warn "missing commands: ${miss[*]}" || ok "core commands present"
     for c in starship zoxide fzf eza batcat btop copyq; do has "$c" || warn "optional missing: $c"; done
-    fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd" || warn "JetBrainsMono Nerd Font not found"
+    fc-list 2>/dev/null | grep -i "JetBrainsMono Nerd" >/dev/null || warn "JetBrainsMono Nerd Font not found"
     [[ -f "$OKOKO_GEN/colors.sh" ]] && ok "theme rendered" || warn "theme not rendered yet - run: okoko theme"
     if [[ -L "$HOME/.config/i3/config" ]]; then ok "dotfiles linked"; else warn "dotfiles not linked - run: okoko link"; fi
     autofit_status

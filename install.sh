@@ -44,7 +44,8 @@ step "2/7  Nerd Font"
 # prompt need the *Nerd Font* build, which Debian does not package. Pinned + checksummed.
 NERD_VER=v3.4.0
 NERD_SHA256=ef552a3e638f25125c6ad4c51176a6adcdce295ab1d2ffacf0db060caf8c1582
-if ! fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font"; then
+# (no grep -q here: it exits at the first match, fc-list gets SIGPIPE and pipefail fails the test)
+if ! fc-list 2>/dev/null | grep -i "JetBrainsMono Nerd Font" >/dev/null; then
     TMP_DIR=$(mktemp -d); trap 'rm -rf "$TMP_DIR"' EXIT
     spin "download JetBrainsMono Nerd Font $NERD_VER" wget -q -O "$TMP_DIR/f.tar.xz" \
       "https://github.com/ryanoasis/nerd-fonts/releases/download/$NERD_VER/JetBrainsMono.tar.xz"
@@ -56,7 +57,7 @@ if ! fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font"; then
         warn "Nerd Font checksum mismatch - not installed (icons will be missing)"
     fi
 fi
-fc-list 2>/dev/null | grep -qi "JetBrainsMono Nerd Font" && ok "font ready" || warn "JetBrainsMono Nerd Font missing"
+fc-list 2>/dev/null | grep -i "JetBrainsMono Nerd Font" >/dev/null && ok "font ready" || warn "JetBrainsMono Nerd Font missing"
 
 step "3/7  deploy dotfiles (symlinks + backup)"
 BACKUP_STAMP=$(date +%Y%m%d-%H%M%S)
