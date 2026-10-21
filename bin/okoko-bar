@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# okoko-bar - VPN and target values for the bar blocks (i3blocks.conf), tmux and the prompt.
+# okoko-bar - workspace buttons, VPN and target values for the bar (i3blocks.conf), tmux and
+# the prompt.
 set -uo pipefail
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
 
@@ -29,5 +30,19 @@ case "${1:-}" in
         [[ "${2:-}" == --copy ]] && { printf '%s' "$t" | xclip -selection clipboard; notify-send "okoko" "target copied: $t" 2>/dev/null; exit; }
         printf '%s\n' "$t"
         ;;
-    *) echo "usage: okoko-bar {vpn|target} [--copy|--plain]" >&2; exit 1 ;;
+    ws)
+        # one workspace button for i3blocks (format=json); $button is set on click.
+        # Only a number is printed, never a window name: nothing can inject bar markup.
+        n="${2:-}"; [[ $n =~ ^([1-9]|10)$ ]] || exit 0
+        [[ ${button:-} == 1 ]] && i3-msg -q "workspace number $n"
+        obj=$(i3-msg -t get_workspaces 2>/dev/null | sed 's/"rect":{[^}]*}//g' | tr '{' '\n' | grep -m1 "\"num\":$n,")
+        if [[ -z $obj ]]; then
+            (( n <= 4 )) || exit 0
+            fg="#888888" bg="#1C1D2B" bd="#1C1D2B"                   # empty, kept on the bar
+        elif [[ $obj == *'"urgent":true'* ]]; then fg="#FFFFFF" bg="#900000" bd="#900000"
+        elif [[ $obj == *'"focused":true'* ]]; then fg="#FFFFFF" bg="#282A3E" bd="#82C8FF"
+        else fg="#E6FFF5" bg="#1C1D2B" bd="#333333"; fi              # holds windows
+        printf '{"full_text":" %s ","color":"%s","background":"%s","border":"%s","separator_block_width":4}\n' "$n" "$fg" "$bg" "$bd"
+        ;;
+    *) echo "usage: okoko-bar {vpn|target} [--copy|--plain] | ws N" >&2; exit 1 ;;
 esac
