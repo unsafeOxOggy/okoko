@@ -113,14 +113,11 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
   commande en ligne. Bloc cible : `signal=1`, rafraîchi par `pkill -RTMIN+1 -x i3blocks` (okoko-menu,
   `tgt`) ; clics via `$button`. `markup=none` : la cible saisie ne peut pas injecter de balises.
   i3bar suit seul les changements de taille : plus de `okoko-bar watch` ni de `gaps top`.
-  **Bureaux** (2026-10-21, demandé) : noms = simples numéros (plus d'icônes) ; 1-4 toujours visibles.
-  i3bar n'affiche que les bureaux non vides -> `workspace_buttons no` et blocs i3blocks `[ws1]`..`[ws10]`
-  (`okoko-bar ws N`, format=json, couleurs xct, clic gauche = change de bureau) rafraîchis par le
-  bloc `[wswatch]` (un `i3-msg -t subscribe` -> `pkill -RTMIN+2 i3blocks`). Ils sont donc à droite,
-  dans la zone de statut. Piège : `i3-msg reload` met à jour i3bar mais ne relance PAS i3blocks ->
-  `i3-msg restart` (ou reconnexion) après un changement de i3blocks.conf.
-  Historique : îlots polybar (style waybar-themes V2.2) du 2026-10-16 au 2026-10-21 ; picom
-  `use-damage = false` vient de là (xrender oubliait l'îlot statique d'icônes).
+  **Bureaux** (2026-10-21, demandé) : noms = simples numéros (plus d'icônes), boutons natifs d'i3bar
+  à gauche. Essayé puis retiré à la demande : 1-4 toujours visibles via des blocs i3blocks
+  (`workspace_buttons no`) -> forcément à droite (i3bar aligne le statut à droite) ; l'utilisateur
+  préfère les bureaux à gauche, donc seuls les bureaux non vides s'affichent (limite d'i3bar).
+  Piège : `i3-msg reload` met à jour i3bar mais ne relance PAS i3blocks -> `i3-msg restart`.
 - **Terminal = xfce4-terminal** (2026-10-21) : VM passée sans 3D/GL (`accel3d='no'`, `<gl>` retiré :
   virgl bloquait Xorg, `virtio_gpu_queue_fenced_ctrl_buffer`). kitty exige OpenGL -> llvmpipe :
   74 ms touche -> écran, 2,7 coeurs en frappe. Mesuré (sonde X Damage + XTest, 2x40 frappes) :
