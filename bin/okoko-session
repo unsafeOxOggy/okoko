@@ -46,7 +46,8 @@ if systemd-detect-virt --vm --quiet 2>/dev/null; then
 fi
 
 # 5. misc one-shots
-once unclutter unclutter --timeout 3 --jitter 20 --ignore-scrolling
+# Kali packages the classic unclutter (8-x): single-dash options
+once unclutter unclutter -idle 3 -jitter 20
 # screen lock: Kali's default (xfce4-screensaver: idle lock + xflock4). i3 does not run XDG
 # autostart, so start it here. Stop the xss-lock/i3lock pair older okoko versions started.
 pkill -x xss-lock 2>/dev/null
