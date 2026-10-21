@@ -5,6 +5,8 @@ configuration {
     show-icons: true;
     icon-theme: "Papirus-Dark";
     drun-display-format: "{name}";
+    /* ~0.25 s instead of ~0.45 s to open; okoko-session drops the cache at each login */
+    drun-use-desktop-cache: true;
     display-drun: "󰍉  apps";
     hover-select: true;
     me-select-entry: "";
