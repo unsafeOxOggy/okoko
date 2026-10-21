@@ -48,7 +48,7 @@ every action without touching your system. In a KVM/QEMU guest the installer off
 ```
 okoko theme [name]      apply a theme (no name -> interactive picker)
 okoko theme --list      list themes
-okoko wallpaper next    cycle wallpaper (or: gen | restore)
+okoko wallpaper next    cycle wallpaper (or: auto | gen | restore)
 okoko doctor            check the environment, report problems
 okoko autofit [bash|rs] install kvm-autofit (screen follows the KVM window)
 okoko-clip history      clipboard history menu (Super+Ctrl+V)
@@ -108,6 +108,7 @@ okoko
 |-- themes/               # *.theme palettes
 |-- home/                 # dotfiles, symlinked into ~ (i3 split into config.d/, zsh split into okoko/zsh/)
 |-- extras/kvm-autofit/    # vendored bash edition of kvm-autofit
+|-- docs/visual-style.md  # how the wallpapers are drawn
 |-- wallpapers/
 `-- tests/                # bats smoke tests (+ shellcheck in CI)
 ```
@@ -142,6 +143,14 @@ okoko
   mouse selection ignored, copies flagged secret by password managers are skipped);
   image previews live in `$XDG_RUNTIME_DIR` only. Moved keys: split vertical is now
   `Super+Shift+V`, the power menu `Super+Shift+Escape`.
+- **Wallpapers: 6 per theme, drawn from the palette.** `lib/wallgen.py` (standard
+  library only) builds exact figures and projects them: the Gosset 4_21 polytope (E8
+  roots, 240 vertices, 6720 edges) and the 600-cell in their Coxeter planes (30-fold
+  rosettes), the 24-cell and the Hopf fibration through stereographic projection, a
+  Penrose tiling from de Bruijn's pentagrid, and a 5-cube next to the Kali shell prompt.
+  `okoko-wall` renders a theme's set once (PNG 2560x1440 in
+  `~/.config/okoko/wallpapers/<theme>/`), switches set with the theme, and `Super+q`
+  cycles it, then your own images from `~/.config/okoko/wallpapers/`.
 - **Terminal: xfce4-terminal, not kitty.** With the VM's 3D acceleration off (it froze
   Xorg), kitty, which needs OpenGL, renders on the CPU (llvmpipe): ~74 ms from key press
   to screen. xfce4-terminal: ~25 ms (urxvt ~20 ms, qterminal ~30 ms; measured with an

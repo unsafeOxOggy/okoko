@@ -35,7 +35,8 @@ lib/link.sh            # symlinks + backup + manifest (~/.local/state/okoko/mani
 bin/okoko-session      # autostart idempotent (exec_always depuis i3) : picom, wall, dunst, agent VM
 bin/okoko-bar          # valeurs vpn/target pour les blocs i3blocks, tmux et le prompt
 bin/okoko-menu         # menus rofi : theme | power | target | keys (cheat sheet générée)
-bin/okoko-wall         # wallpaper : next/gen/restore (gen = formes géométriques depuis la palette)
+bin/okoko-wall         # wallpapers : next/auto/gen/restore, jeu de 6 par thème rendu par lib/wallgen.py
+lib/wallgen.py         # figures exactes projetées (E8, 600-cell, 24-cell, Hopf, Penrose, 5-cube) -> SVG
 bin/okoko-dropdown     # terminal déroulant (scratchpad)
 templates/             # 1 fichier/app avec tokens {{COULEUR}} (+ starship.toml, colors.sh, btop.theme...)
 themes/*.theme         # palettes
@@ -56,20 +57,20 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
 
 ## VM cible
 
-- `ssh kali@192.168.100.18` - user `kali`. **Clé SSH déjà installée** (accès sans mdp). Ne jamais écrire
+- `ssh kali@192.168.122.187` - user `kali` (IP DHCP du réseau libvirt `default`, peut changer :
+  `virsh -c qemu:///system domifaddr kali-i3`). **Clé SSH déjà installée** (accès sans mdp). Ne jamais écrire
   de mot de passe ici : ce fichier est poussé sur un dépôt GitHub **public**.
 - KVM/QEMU, virtio-GPU (-> picom `xrender`), 4 CPU / 8 Go / Kali Rolling, LightDM, zsh+OMZ.
 - **Snapshots en place** (l'utilisateur peut casser/restaurer librement).
-- Déploiement : `rsync -az --exclude=.git ./ kali@192.168.100.18:~/okoko/` puis `okoko link` / `okoko theme`.
+- Le dépôt est cloné dans `~/Desktop/okoko` sur la VM. Déploiement sans publier : `git bundle create x.bundle
+  <dernier-commit-VM>..master`, `scp`, puis `git pull --ff-only x.bundle master` sur la VM, puis
+  `okoko link` / `okoko theme <nom>`. VM sans 3D/GL (voir "Terminal").
 
-## État courant (MAJ 2026-10-16)
+## État courant (MAJ 2026-10-21)
 
-- [x] Projet écrit, 7 thèmes, `bash -n` + i3 `-C` OK, git branche `master`.
-- [x] Déployé sur la VM : dotfiles **linkés**, thème **rendu**, CLI `okoko` opérationnelle.
-- [!] **Paquets apt PAS encore installés** sur la VM (dunst, fonts-jetbrains-mono, papirus,
-  unclutter, xfce4-screensaver + extras fzf/eza/bat/zoxide/starship/btop/gum...).
-  -> l'utilisateur doit lancer **`cd ~/okoko && ./install.sh`** dans un terminal de la VM
-  (le classificateur de sécurité empêche Claude de saisir le mot de passe sudo à sa place).
+- [x] Projet écrit, 7 thèmes, `bash -n` + i3 `-C` OK, git branche `master`, CI verte.
+- [x] Installé et actif sur la VM (`~/Desktop/okoko`, linké) : `okoko doctor` sans avertissement ;
+  barre i3bar+i3blocks, xfce4-terminal, 42 wallpapers rendus (6 x 7 thèmes).
 - [x] Remote GitHub `git@github.com:unsafeOxOggy/okoko.git` (**public**). Le `.git` local a disparu le
   2026-10-16 (cause inconnue, pas d'action de Claude) -> historique repris d'un nouveau commit initial.
 - [x] kvm-autofit intégré : `lib/autofit.sh`, étape 6/7 de `install.sh` (`--autofit=bash|rs|none`,
