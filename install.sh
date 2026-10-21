@@ -28,7 +28,7 @@ sudo_keepalive
 
 step "1/7  packages"
 run sudo apt-get update -qq
-CORE=(i3-wm i3status i3blocks picom kitty rofi feh flameshot dunst
+CORE=(i3-wm i3status i3blocks picom xfce4-terminal rofi feh flameshot dunst
       fonts-font-awesome fonts-jetbrains-mono papirus-icon-theme
       xclip xdotool x11-xserver-utils x11-utils unclutter copyq
       xfce4-screensaver libnotify-bin wget tar fontconfig)

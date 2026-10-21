@@ -11,14 +11,14 @@ Réécriture totale de `okoko-i3` (ancien repo = configs à plat copiées en dur
 `xct/kali-clean`. Priorités : léger pour une VM, installeur reproductible basé `apt`,
 switch de thème instantané, workflow pentest (IP VPN + cible toujours visibles).
 
-Stack : `i3` - `i3bar + i3blocks` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`.
+Stack : `i3` - `i3bar + i3blocks` - `picom` - `xfce4-terminal` - `rofi` - `dunst` - `zsh + starship`.
 
 ## Architecture (3 idées clés)
 
 1. **Un moteur de thèmes, plusieurs apps.** Les couleurs vivent dans *un* `themes/<nom>.theme`.
    `okoko theme <nom>` rend tous les `templates/*` (remplace `{{VAR}}` -> `#RRGGBB`,
    `{{VAR.hex}}` -> `RRGGBB`) vers `~/.config/okoko/current/`, puis recharge à chaud
-   i3/kitty/dunst/tmux (voir `lib/theme.sh` -> `theme_reload`).
+   i3/xfce4-terminal/kitty/dunst/tmux (voir `lib/theme.sh` -> `theme_reload`).
 2. **Symlinks, pas de copies.** `install.sh`/`okoko link` sauvegardent les dotfiles existants
    dans `~/.local/state/okoko/backup/<ts>/` puis lient ceux de `home/`. `okoko uninstall` restaure.
 3. **Fait pour le taf.** Barre montre `tun0` + cible ; `Super+t` cible, `Super+i` copie VPN.
@@ -114,6 +114,15 @@ recréer si besoin : il calcule le ratio sur des paires FG/BG/ACCENT/MUTED). Rè
   i3bar suit seul les changements de taille : plus de `okoko-bar watch` ni de `gaps top`.
   Historique : îlots polybar (style waybar-themes V2.2) du 2026-10-16 au 2026-10-21 ; picom
   `use-damage = false` vient de là (xrender oubliait l'îlot statique d'icônes).
+- **Terminal = xfce4-terminal** (2026-10-21) : VM passée sans 3D/GL (`accel3d='no'`, `<gl>` retiré :
+  virgl bloquait Xorg, `virtio_gpu_queue_fenced_ctrl_buffer`). kitty exige OpenGL -> llvmpipe :
+  74 ms touche -> écran, 2,7 coeurs en frappe. Mesuré (sonde X Damage + XTest, 2x40 frappes) :
+  xfce4-terminal 25 ms, urxvt 20 ms, qterminal 30 ms. Choix xfce4-terminal (onglets, Ctrl+Shift+C/V,
+  thème à chaud). Réglages dans **xfconf** (pas de fichier) : template `xfce4-terminal.sh` exécuté
+  par okoko-session (bus de session requis) et `theme_reload`. `--class` ne marche pas quand le
+  serveur xfce4-terminal tourne -> flottant/dropdown repérés par `--role` (i3 `window_role`,
+  picom `role`). 1re fenêtre 0,5 s, suivantes 0,14 s : plus d'instance pré-lancée.
+  Config kitty conservée (thémée) pour les machines avec GPU.
 - **Délai au lancement** (2026-10-16) : kitty met ~1,9 s à démarrer dans la VM (Python + OpenGL virgl,
   même sans config ; zsh = 0,1 s, starship = 8 ms). => `$term = kitty -1 --instance-group okoko` +
   instance cachée pré-lancée par okoko-session (`pgrep -f '^kitty -1 ...'`, ancré : un `-f` non ancré

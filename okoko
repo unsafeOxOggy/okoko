@@ -46,7 +46,7 @@ cmd_doctor() {
     info "theme:      $(theme_current)"
     info "picom:      backend=$PICOM_BACKEND"
     local miss=() c
-    for c in i3 i3blocks picom kitty rofi feh flameshot dunst xclip; do
+    for c in i3 i3blocks picom xfce4-terminal rofi feh flameshot dunst xclip; do
         has "$c" || miss+=("$c")
     done
     (( ${#miss[@]} )) && warn "missing commands: ${miss[*]}" || ok "core commands present"

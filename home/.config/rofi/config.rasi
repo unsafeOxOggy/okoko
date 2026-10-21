@@ -1,7 +1,7 @@
 /* okoko - rofi - colors come from the active theme */
 configuration {
     modi: "drun";
-    terminal: "kitty";
+    terminal: "xfce4-terminal";
     show-icons: true;
     icon-theme: "Papirus-Dark";
     drun-display-format: "{name}";

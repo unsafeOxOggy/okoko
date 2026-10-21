@@ -25,7 +25,7 @@ setup() {
 @test "rendering leaves no template placeholders" {
     theme_apply okoko --no-reload
     # every target must exist, otherwise "no placeholder found" would pass vacuously
-    for f in colors.sh i3-colors.conf kitty-theme.conf rofi-colors.rasi starship.toml; do
+    for f in colors.sh i3-colors.conf kitty-theme.conf xfce4-terminal.sh rofi-colors.rasi starship.toml; do
         [ -s "$XDG_CONFIG_HOME/okoko/current/$f" ]
     done
     bats_run -1 grep -rl '{{' "$XDG_CONFIG_HOME/okoko/current"

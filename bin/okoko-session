@@ -30,8 +30,8 @@ okoko-wall restore
 once dunst dunst
 # clipboard history (CopyQ, hidden) for okoko-clip / Super+Ctrl+V
 command -v copyq >/dev/null && { okoko-clip setup >/dev/null 2>&1 & disown; }
-# hidden kitty instance: every terminal ($term = kitty -1) then opens instantly
-pgrep -f '^kitty -1 --instance-group okoko( |$)' >/dev/null || { kitty -1 --instance-group okoko --start-as=hidden >/dev/null 2>&1 & disown; }
+# terminal colors/font: xfce4-terminal reads them from xfconf, which needs the session bus
+sh "$CONF/okoko/current/xfce4-terminal.sh" >/dev/null 2>&1 &
 # the bar is i3bar + i3blocks (i3 starts it); stop the polybar of older okoko versions
 pkill -f 'okoko-bar watch' 2>/dev/null; pkill -x polybar 2>/dev/null
 

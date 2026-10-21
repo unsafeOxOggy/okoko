@@ -8,7 +8,7 @@ Lightweight enough for a KVM/QEMU guest, reproducible from a single `apt`-based
 installer, and built around the way you actually work in a lab: VPN IP and target
 always on the bar, instant theme switching, and a built-in keybinding cheat sheet.
 
-`i3` - `i3bar + i3blocks` - `picom` - `kitty` - `rofi` - `dunst` - `zsh + starship`
+`i3` - `i3bar + i3blocks` - `picom` - `xfce4-terminal` - `rofi` - `dunst` - `zsh + starship`
 
 </div>
 
@@ -21,7 +21,7 @@ This is a ground-up rewrite of my earlier `okoko-i3`, inspired by
 of configs copied into place. okoko is built on three ideas instead:
 
 1. **One theme engine, many apps.** Colors live in *one* `*.theme` file. A single
-   `okoko theme redteam` re-renders i3, kitty, rofi, dunst, tmux, btop,
+   `okoko theme redteam` re-renders i3, xfce4-terminal, kitty, rofi, dunst, tmux, btop,
    starship and fzf, then hot-reloads everything - no logout.
 2. **Symlinks, not copies.** `install.sh` backs up your existing dotfiles and
    symlinks okoko's in. `okoko update` pulls and relinks. `okoko uninstall` restores.
@@ -142,8 +142,13 @@ okoko
   mouse selection ignored, copies flagged secret by password managers are skipped);
   image previews live in `$XDG_RUNTIME_DIR` only. Moved keys: split vertical is now
   `Super+Shift+V`, the power menu `Super+Shift+Escape`.
-- **Terminals open instantly**: one kitty instance (`kitty -1`) is pre-started hidden,
-  so a new terminal is a new window (~0.5s) instead of a new process (~2.5s in a VM).
+- **Terminal: xfce4-terminal, not kitty.** With the VM's 3D acceleration off (it froze
+  Xorg), kitty, which needs OpenGL, renders on the CPU (llvmpipe): ~74 ms from key press
+  to screen. xfce4-terminal: ~25 ms (urxvt ~20 ms, qterminal ~30 ms; measured with an
+  X Damage probe on the VM). Its settings live in xfconf: `okoko theme` and
+  `okoko-session` apply colors and font through the rendered `xfce4-terminal.sh`.
+  Floating and dropdown terminals are matched by window role. The kitty config is
+  kept, themed as before, for machines with a real GPU.
 - **Nothing runs `curl | sh`**: zsh plugins come from Debian packages. The
   JetBrainsMono Nerd Font (needed for the bar icons; Debian only ships the plain
   font) is downloaded from a pinned Nerd Fonts release and checked against a sha256.

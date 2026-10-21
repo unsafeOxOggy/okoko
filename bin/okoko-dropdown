@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 # okoko-dropdown - toggle a Quake-style dropdown terminal via the scratchpad.
+# xfce4-terminal runs every window in one server process, so the dropdown is found by its
+# window role in the i3 tree, not by process.
 set -uo pipefail
-if ! pgrep -af 'kitty --class okoko-dropdown' >/dev/null 2>&1; then
-    kitty --class okoko-dropdown >/dev/null 2>&1 & disown
+if i3-msg -t get_tree 2>/dev/null | grep -q '"window_role":"okoko-dropdown"'; then
+    i3-msg -q '[window_role="okoko-dropdown"] scratchpad show' 2>/dev/null
 else
-    i3-msg -q '[class="okoko-dropdown"] scratchpad show' 2>/dev/null
+    xfce4-terminal --role okoko-dropdown >/dev/null 2>&1 & disown
 fi
