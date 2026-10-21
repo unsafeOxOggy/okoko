@@ -6,7 +6,7 @@
     offset = (12, 44)
     width = (240, 380)
     notification_limit = 5
-    corner_radius = 8
+    corner_radius = 0
     frame_width = 2
     padding = 10
     horizontal_padding = 12
