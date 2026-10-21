@@ -30,10 +30,10 @@ step "1/7  packages"
 run sudo apt-get update -qq
 CORE=(i3-wm i3status i3blocks picom xfce4-terminal rofi feh flameshot dunst
       fonts-font-awesome fonts-jetbrains-mono papirus-icon-theme
-      xclip xdotool x11-xserver-utils x11-utils unclutter copyq
+      xclip xdotool x11-xserver-utils x11-utils unclutter copyq librsvg2-bin python3
       xfce4-screensaver libnotify-bin wget tar fontconfig)
 EXTRA=(zsh zsh-autosuggestions zsh-syntax-highlighting fzf eza bat zoxide starship
-       fastfetch btop tmux neovim imagemagick librsvg2-bin gum playerctl brightnessctl)
+       fastfetch btop tmux neovim imagemagick gum playerctl brightnessctl)
 VM=(spice-vdagent qemu-guest-agent)
 apt_install "${CORE[@]}"
 [[ "$MINIMAL" == 1 ]] || apt_install "${EXTRA[@]}"

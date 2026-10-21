@@ -16,7 +16,7 @@ ${C_BLD}okoko${C_RST} - modular i3 rice for offensive VMs
 
   okoko theme [name]        apply a theme (no name = interactive picker)
   okoko theme --list        list available themes
-  okoko wallpaper {next|gen|restore}
+  okoko wallpaper {next|auto|gen|restore}
   okoko doctor              check the environment and report problems
   okoko autofit [bash|rs]   install kvm-autofit (screen follows the KVM window)
   okoko link                (re)deploy dotfiles as symlinks

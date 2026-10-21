@@ -1,46 +1,67 @@
 #!/usr/bin/env bash
-# okoko-wall - wallpaper manager: cycle, restore, or generate a geometric
-# wallpaper from the active theme (basic shapes only, no stretching).
+# okoko-wall - wallpapers. Each theme has its own set of geometric wallpapers drawn by
+# lib/wallgen.py from the theme palette (polytopes in Coxeter planes, stereographic
+# projections, Hopf fibration, Penrose tiling, Kali prompt), rendered once to PNG under
+# ~/.config/okoko/wallpapers/<theme>/. Your own images go in ~/.config/okoko/wallpapers/.
+#
+#   okoko-wall next      next wallpaper: the theme set, then your own images
+#   okoko-wall auto      after a theme switch: render the set if needed, show its first one
+#   okoko-wall gen       re-render the set of the current theme (e.g. after an update)
+#   okoko-wall restore   show the last wallpaper again (session start)
 set -uo pipefail
 STATE="${XDG_STATE_HOME:-$HOME/.local/state}/okoko"
 CONF="${XDG_CONFIG_HOME:-$HOME/.config}"
 DIR="$CONF/okoko/wallpapers"
-GEN="$CONF/okoko/current/wallpaper.png"
+ROOT="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+SIZE=2560x1440        # 16:9, cropped (never stretched) by feh --bg-fill on other ratios
 mkdir -p "$STATE" "$DIR"
+
+theme=$(cat "$STATE/theme" 2>/dev/null || echo okoko)
+[[ $theme =~ ^[A-Za-z0-9_-]+$ ]] || theme=okoko
+TDIR="$DIR/$theme"
 
 set_wall() { command -v feh >/dev/null && feh --no-fehbg --bg-fill "$1" && printf '%s\n' "$1" >"$STATE/wallpaper"; }
 
-mapfile -d '' -t WALLS < <(find "$DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 2>/dev/null | sort -z)
+# render <force>: draw every design of the current theme (SVG -> PNG), atomically
+render() {
+    local force="${1:-0}" n=0 d svg out
+    command -v python3 >/dev/null && [[ -f "$ROOT/themes/$theme.theme" ]] || return 1
+    mkdir -p "$TDIR"
+    svg=$(mktemp --suffix=.svg) || return 1
+    for d in $(python3 -I "$ROOT/lib/wallgen.py" --list); do
+        n=$((n + 1)); out="$TDIR/$(printf '%02d' "$n")-$d.png"
+        [[ $force == 1 || ! -s $out || $ROOT/lib/wallgen.py -nt $out || $ROOT/themes/$theme.theme -nt $out ]] || continue
+        python3 -I "$ROOT/lib/wallgen.py" --theme "$ROOT/themes/$theme.theme" --design "$d" --size "$SIZE" >"$svg" || continue
+        if command -v rsvg-convert >/dev/null; then rsvg-convert "$svg" -o "$out.tmp"
+        elif command -v magick >/dev/null; then magick "$svg" "png:$out.tmp"
+        else rm -f "$svg"; return 1; fi && mv "$out.tmp" "$out"
+    done
+    rm -f "$svg" "$TDIR"/*.tmp
+}
 
-# Generate a geometric wallpaper from theme colors with ImageMagick:
-# a solid background with evenly tiled, unstretched regular shapes.
-gen_wall() {
-    source "$CONF/okoko/current/colors.sh" 2>/dev/null || return 1
-    command -v magick >/dev/null || return 1
-    local W=1920 H=1080 out="$GEN"
-    # grid of regular hexagons + circles, uniform scale, centered - no scale(x,y)
-    magick -size ${W}x${H} "xc:$BG" \
-        -fill "$SURFACE" -draw "circle 320,820 320,760" \
-        -fill "$ACCENT"  -draw "circle 1600,260 1600,320" \
-        -fill "none" -stroke "$SURFACE" -strokewidth 3 \
-        -draw "polygon 960,300 1020,335 1020,405 960,440 900,405 900,335" \
-        -fill "$ACCENT2" -stroke none \
-        -draw "rectangle 120,120 220,220" \
-        -fill "$WARN" -draw "polygon 1750,880 1810,980 1690,980" \
-        "$out" 2>/dev/null && set_wall "$out"
+walls() { # the theme set first, then your own images
+    find "$TDIR" -maxdepth 1 -type f -name '*.png' -print0 2>/dev/null | sort -z
+    find "$DIR" -maxdepth 1 -type f \( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' \) -print0 2>/dev/null | sort -z
 }
 
 case "${1:-restore}" in
     next)
-        (( ${#WALLS[@]} == 0 )) && { gen_wall; exit; }
+        mapfile -d '' -t W < <(walls)
+        (( ${#W[@]} )) || { render && mapfile -d '' -t W < <(walls); }
+        (( ${#W[@]} )) || exit 1
         cur=$(cat "$STATE/wallpaper" 2>/dev/null); n=0
-        for i in "${!WALLS[@]}"; do [[ "${WALLS[$i]}" == "$cur" ]] && { n=$(( (i+1) % ${#WALLS[@]} )); break; }; done
-        set_wall "${WALLS[$n]}" ;;
-    gen|auto) gen_wall ;;
+        for i in "${!W[@]}"; do [[ "${W[$i]}" == "$cur" ]] && { n=$(( (i + 1) % ${#W[@]} )); break; }; done
+        set_wall "${W[$n]}" ;;
+    auto)
+        render 0
+        first=$(find "$TDIR" -maxdepth 1 -type f -name '*.png' 2>/dev/null | sort | head -1)
+        [[ -n $first ]] && set_wall "$first" ;;
+    gen)
+        render 1
+        cur=$(cat "$STATE/wallpaper" 2>/dev/null)
+        [[ -f $cur ]] && set_wall "$cur" ;;
     restore)
         cur=$(cat "$STATE/wallpaper" 2>/dev/null)
-        if [[ -f "$cur" ]]; then set_wall "$cur"
-        elif (( ${#WALLS[@]} )); then set_wall "${WALLS[0]}"
-        else gen_wall; fi ;;
-    *) echo "usage: okoko-wall {next|gen|restore}" >&2; exit 1 ;;
+        if [[ -f "$cur" ]]; then set_wall "$cur"; else "$0" auto; fi ;;
+    *) echo "usage: okoko-wall {next|auto|gen|restore}" >&2; exit 1 ;;
 esac

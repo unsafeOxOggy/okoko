@@ -26,7 +26,7 @@ pkill -9 -x picom 2>/dev/null
 picom --backend "$backend" --config "$CONF/picom/picom.conf" & disown
 
 # 3. wallpaper, notifications, clipboard, terminal
-okoko-wall restore
+okoko-wall restore >/dev/null 2>&1 &   # first run renders the theme set (a few seconds)
 once dunst dunst
 # clipboard history (CopyQ, hidden) for okoko-clip / Super+Ctrl+V
 command -v copyq >/dev/null && { okoko-clip setup >/dev/null 2>&1 & disown; }
